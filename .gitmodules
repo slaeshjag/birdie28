@@ -1,0 +1,3 @@
+[submodule "submodules/muil"]
+	path = submodules/muil
+	url = https://git.h4xxel.org/h4xxel/muil.git
