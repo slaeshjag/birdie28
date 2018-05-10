@@ -13,6 +13,8 @@
 //#include "bullet.h"
 //#include "turret.h"
 
+static DARNIT_CIRCLE *_circle;
+
 InGameKeyStateEntry ingame_keystate[PLAYER_CAP];
 int ingame_timer_package_send(uint8_t advantage, uint32_t team1, uint32_t team2);
 void ingame_timer_blit(int time_left, int mode, int pos);
@@ -30,6 +32,20 @@ void ingame_init() {
 	movableLoad();
 //	healthbar_init();
 //	soundeffects_init();
+//
+
+	char *prop;
+	int center_x, center_y, radius;
+	prop = d_map_prop(s->active_level->prop, "center_x");
+	center_x = atoi(prop);
+	prop = d_map_prop(s->active_level->prop, "center_y");
+	center_y = atoi(prop);
+	prop = d_map_prop(s->active_level->prop, "radius");
+	radius = atoi(prop);
+
+	_circle = d_render_circle_new(1024, 10);
+	printf("circle (%i, %i) radius %i\n", center_x, center_y, radius);
+	d_render_circle_move(_circle, center_x, center_y, radius);
 
 	for (i = 0; i < s->movable.movables; i++) {
 		if (!(playerid_str = d_map_prop(s->active_level->object[i].ref, "player_id")))
@@ -62,6 +78,9 @@ void ingame_loop() {
 	
 	camera_work();
 	d_map_camera_move(s->active_level, s->camera.x, s->camera.y);
+
+	d_render_offset(s->camera.x, s->camera.y);
+	d_render_circle_draw(_circle);
 	
 	for (i = 0; i < s->active_level->layers; i++) {
 		d_render_offset(0, 0);
@@ -175,16 +194,16 @@ void ingame_network_handler() {
 				break;
 			
 			case PACKET_TYPE_BULLET_ANNOUNCE:
-				if (s->is_host)
+//				if (s->is_host)
 					//bullet_add(pack.bullet_announce.bullet_type, pack.bullet_announce.id, pack.bullet_announce.x, pack.bullet_announce.y);
 				break;
 			case PACKET_TYPE_BULLET_UPDATE:
 
-				if (s->is_host)
+//				if (s->is_host)
 					//bullet_update(pack.bullet_update.x, pack.bullet_update.y, pack.bullet_update.id);
 				break;
 			case PACKET_TYPE_BULLET_REMOVE:
-				if (s->is_host)
+//				if (s->is_host)
 					//bullet_destroy(pack.bullet_remove.id);
 				break;
 			case PACKET_TYPE_SOUND:
