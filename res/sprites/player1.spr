@@ -1,0 +1,54 @@
+res/player.png 96 96
+
+# Stand Right
+D
+T 200 21
+E
+
+# Stand Left
+D
+T 200 29
+E
+
+# Right
+D
+T 200 21
+T 200 22
+T 200 23
+T 200 24
+E
+
+# Left
+D
+T 200 29
+T 200 30
+T 200 31
+T 200 32
+E
+
+# Carry stand right
+D
+T 200 25
+E
+
+# Carry left
+D
+T 200 33
+E
+
+# Carry right
+D
+T 200 25
+T 200 26
+T 200 27
+T 200 28
+E
+
+# Carry left
+D
+T 200 33
+T 200 34
+T 200 35
+T 200 36
+E
+
