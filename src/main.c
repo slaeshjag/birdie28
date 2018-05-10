@@ -13,7 +13,7 @@
 #include "server/server.h"
 //#include "ingame.h"
 #include "lobby.h"
-//#include "gameroom.h"
+#include "gameroom.h"
 //#include "gameover.h"
 #include "menu.h"
 #include "main.h"
@@ -39,7 +39,7 @@ void (*state_render[GAME_STATES])()={
 
 void (*state_network_handler[GAME_STATES])()={
 //	[GAME_STATE_GAME] = ingame_network_handler,
-//	[GAME_STATE_GAMEROOM] = gameroom_network_handler,
+	[GAME_STATE_GAMEROOM] = gameroom_network_handler,
 	[GAME_STATE_LOBBY] = lobby_network_handler,
 };
 
@@ -117,7 +117,7 @@ void game_state(GameState state) {
 			muil_selected_widget = select_name.entry;
 			break;
 		case GAME_STATE_LOBBY:
-			//gameroom.button.start->enabled = false;
+			gameroom.button.start->enabled = false;
 			s->is_host = false;
 			//muil_listbox_clear(lobby.list);
 			break;
@@ -127,13 +127,13 @@ void game_state(GameState state) {
 		case GAME_STATE_HOST:
 			s->is_host = true;
 			server_start();
-			//gameroom.button.start->enabled = true;
+			gameroom.button.start->enabled = true;
 			
 			join_game(network_local_ip());
 			
 			state = GAME_STATE_GAMEROOM;
 		case GAME_STATE_GAMEROOM:
-			//muil_listbox_clear(gameroom.list);
+			muil_listbox_clear(gameroom.list);
 		case GAME_STATE_CHARACTERS:
 		case GAME_STATE_GAME_OVER:
 		case GAME_STATE_QUIT:
@@ -164,7 +164,7 @@ int main(int argc, char  **argv) {
 
 	muil_init(4);
 	menu_init();
-	//gameroom_init();
+	gameroom_init();
 	lobby_init();
 	//sfx_init();
 	//character_room_init();
@@ -175,7 +175,7 @@ int main(int argc, char  **argv) {
 	//gamestate_pane[GAME_STATE_CHARACTERS] = &character_room.pane;
 	gamestate_pane[GAME_STATE_LOBBY] = &lobby.pane;
 	gamestate_pane[GAME_STATE_ENTER_IP] = &enter_ip.pane;
-	//gamestate_pane[GAME_STATE_GAMEROOM] = &gameroom.pane;
+	gamestate_pane[GAME_STATE_GAMEROOM] = &gameroom.pane;
 	//gamestate_pane[GAME_STATE_GAME_OVER] = &game_over.pane;
 	
 	

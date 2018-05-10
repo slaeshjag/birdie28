@@ -7,7 +7,7 @@
 //#include "sfx.h"
 
 //#include "movable.h"
-//#include "player.h"
+#include "player.h"
 //#include "bullet.h"
 //#include "blocklogic.h"
 //#include "turret.h"
@@ -69,7 +69,7 @@ struct GameStateStruct {
 //	DARNIT_TILESHEET	*_7seg;
 //	BULLET			bullet;
 //	struct HealthbarStruct	healthbar;
-//	struct PlayerState	player[PLAYER_CAP];
+	struct PlayerState	player[PLAYER_CAP];
 //	struct PlayerTimer	timer;
 //	struct BlockLogicBlock	block[2]; // One per team for now
 //	struct BulletList	bullet;
