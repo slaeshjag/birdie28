@@ -149,8 +149,11 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			int grav_x, grav_y;
 			double grav_angle;
 			
+			printf("%i %i\n", self->x, self->y);
 			gcenter_calc(self->x, self->y, &grav_x, &grav_y);
 			grav_angle = atan2(grav_y, grav_x);
+
+			printf("player id %i is movable id %i\n", player_id, self->id);
 
 			if (ingame_keystate[player_id].left) {
 				double angle;

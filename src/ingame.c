@@ -48,9 +48,9 @@ void ingame_init() {
 	d_render_circle_move(_circle, center_x, center_y, radius);
 
 	for (i = 0; i < s->movable.movables; i++) {
-		if (!(playerid_str = d_map_prop(s->active_level->object[i].ref, "player_id")))
-			continue;
-		if (atoi(playerid_str) == s->player_id) {
+		int id = _get_player_id(&s->movable.movable[i]);
+		if (id == s->player_id) {
+			printf("camera will follow movable %i\n");
 			s->camera.follow = i;
 			break;
 		}
