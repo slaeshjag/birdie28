@@ -28,11 +28,3 @@ void game_over_init() {
 	game_over.button.menu->event_handler->add(game_over.button.menu, button_callback, MUIL_EVENT_TYPE_UI_WIDGET_ACTIVATE);
 }
 
-void game_over_set_team(int team) {
-	MuilPropertyValue v;
-	
-	v.p = malloc(512);
-	sprintf(v.p, "Team %s has won!", team_name[team]);
-	
-	game_over.whowon->set_prop(game_over.whowon, MUIL_LABEL_PROP_TEXT, v);
-}

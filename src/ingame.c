@@ -54,7 +54,7 @@ void ingame_loop() {
 	
 	if(s->is_host) {
 		server_kick();
-		bullet_loop();
+		//bullet_loop();
 	//	turret_loop();
 		
 	}
@@ -71,7 +71,7 @@ void ingame_loop() {
 		
 	}
 	
-	bullet_render_loop();
+	//bullet_render_loop();
 	
 	for (i = 0; i < s->active_level->layers; i++) {
 		movableLoopRender(i);
@@ -188,22 +188,22 @@ void ingame_network_handler() {
 			
 			case PACKET_TYPE_BULLET_ANNOUNCE:
 				if (s->is_host)
-					bullet_add(pack.bullet_announce.bullet_type, pack.bullet_announce.id, pack.bullet_announce.x, pack.bullet_announce.y);
+					//bullet_add(pack.bullet_announce.bullet_type, pack.bullet_announce.id, pack.bullet_announce.x, pack.bullet_announce.y);
 				break;
 			case PACKET_TYPE_BULLET_UPDATE:
 
 				if (s->is_host)
-					bullet_update(pack.bullet_update.x, pack.bullet_update.y, pack.bullet_update.id);
+					//bullet_update(pack.bullet_update.x, pack.bullet_update.y, pack.bullet_update.id);
 				break;
 			case PACKET_TYPE_BULLET_REMOVE:
 				if (s->is_host)
-					bullet_destroy(pack.bullet_remove.id);
+					//bullet_destroy(pack.bullet_remove.id);
 				break;
 			case PACKET_TYPE_SOUND:
 	//			soundeffects_play(pack.sound.sound);
 				break;
 			case PACKET_TYPE_EXIT:
-				game_over_set_team(pack.exit.team);
+				//game_over_set_team(pack.exit.team);
 				game_state(GAME_STATE_GAME_OVER);
 				break;
 		}

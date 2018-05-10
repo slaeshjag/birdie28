@@ -58,7 +58,7 @@ struct GameStateStruct {
 	int	player_id;
 	bool is_host;
 	MOVABLE			movable;
-	//DARNIT_MAP		*active_level;
+	DARNIT_MAP		*active_level;
 //	DARNIT_TILESHEET	*_7seg;
 //	BULLET			bullet;
 //	struct HealthbarStruct	healthbar;

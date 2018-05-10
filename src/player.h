@@ -10,7 +10,6 @@ struct PlayerState {
 	int last_walk_direction;
 	int pulling;
 	int movable;
-	int velocity_y_old;
 	//MOVABLE_ENTRY *holding;
 	//DARNIT_PARTICLE *blood;
 };
