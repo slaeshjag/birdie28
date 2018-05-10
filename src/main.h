@@ -51,14 +51,7 @@ struct Gfx {
 extern Gfx gfx;
 extern char player_name[];
 extern int server_sock;
-extern char *team_name[];
 
-
-struct PlayerTimer {
-	uint32_t		team1;
-	uint32_t		team2;
-	int			advantage;
-};
 
 
 struct GameStateStruct {
