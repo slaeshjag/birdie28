@@ -2,6 +2,7 @@
 #include <math.h>
 #include "main.h"
 #include "ailib.h"
+#include <string.h>
 //#include "network/protocol.h"
 //#include "server/server.h"
 #include "util.h"
@@ -97,7 +98,6 @@ void movableSpawn() {
 		s->movable.movable[i].x = s->active_level->object[i].x * 1000 * s->active_level->layer->tile_w;
 		s->movable.movable[i].y = s->active_level->object[i].y * 1000 * s->active_level->layer->tile_h;
 		s->movable.movable[i].l = s->active_level->object[i].l;
-		printf("spawn %i at %i %i\n", i, s->movable.movable[i].x / 1000, s->movable.movable[i].y / 1000);
 		s->movable.movable[i].direction = 0;
 		//s->movable.movable[i].hp = 1;
 		s->movable.movable[i].angle = 0;
@@ -278,11 +278,11 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 	if (entry->gravity_effect) {
 		entry->gravity_blocked = 0;
 		gcenter_calc(entry->x / 1000, entry->y / 1000, &gravity_x, &gravity_y);
-		entry->x_gravity += gravity_x * d_last_frame_time();
-		entry->y_gravity += gravity_y * d_last_frame_time();
+		entry->x_gravity = gravity_x * d_last_frame_time();
+		entry->y_gravity = gravity_y * d_last_frame_time();
 		if ((entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity) > MOV_TERMINAL_VELOCITY * MOV_TERMINAL_VELOCITY) {
-			gravity_x = GRAVITY_CAP * entry->x_gravity / sqrt(entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity);
-			gravity_y = GRAVITY_CAP * entry->y_gravity / sqrt(entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity);
+			gravity_x = MOV_TERMINAL_VELOCITY * entry->x_gravity / sqrt(entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity);
+			gravity_y = MOV_TERMINAL_VELOCITY * entry->y_gravity / sqrt(entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity);
 			entry->x_gravity = gravity_x;
 			entry->y_gravity = gravity_y;
 		}
@@ -342,7 +342,13 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 		}
 	}
 
-	#if 0
+	if (entry->gravity_blocked)
+		entry->x_gravity = entry->y_gravity = 0;
+
+	delta_x = (entry->x_velocity * d_last_frame_time());
+	delta_y = (entry->y_velocity * d_last_frame_time());
+	p = delta_x * 1000 / (delta_y ? delta_y : 1);
+	
 	while (delta_x || delta_y) {
 		if (delta_x && (!delta_y || delta_x * 1000 / (delta_y ? delta_y : 1) > p)) {
 			r = entry->x % 1000;
@@ -376,9 +382,6 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 			if (r + delta_y < 1000 && r + delta_y >= 0) {
 				entry->y += delta_y;
 				delta_y = 0;
-				if (!hack && !movableHackTest(entry)) {
-					entry->y_velocity = hack;
-				}
 				continue;
 			} 
 
@@ -401,7 +404,6 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 			}
 		}
 	}
-	#endif
 
 	return -1462573849;
 }
@@ -422,7 +424,6 @@ void movableLoop() {
 				players_active++, winning_player = _get_player_id(&s->movable.movable[i]);
 			if (s->movable.movable[i].ai)
 				s->movable.movable[i].ai(s, &s->movable.movable[i], MOVABLE_MSG_LOOP);
-			printf("player %i at %i %i\n", i, s->movable.movable[i].x / 1000, s->movable.movable[i].y / 1000);
 			movableGravity(&s->movable.movable[i]);
 		}
 
