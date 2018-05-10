@@ -75,6 +75,8 @@ void server_handle_client(ClientList *cli) {
 				break;
 			
 			case PACKET_TYPE_KEYPRESS:
+				HANDLE_KEY(left);
+				HANDLE_KEY(right);
 				break;
 			
 			case PACKET_TYPE_BLOCK_PLACE:
@@ -157,7 +159,7 @@ int server_thread(void *arg) {
 				break;
 				
 			case SERVER_STATE_GAME:
-/*				d_util_semaphore_wait(sem);
+				d_util_semaphore_wait(sem);
 				
 				move.type = PACKET_TYPE_MOVE_OBJECT;
 				move.size = 4 + s->movable.movables*10;
@@ -185,7 +187,6 @@ int server_thread(void *arg) {
 				
 				for(tmp = client; tmp; tmp = tmp->next)
 					server_handle_client(tmp);
-				*/
 				break;
 		}
 	}

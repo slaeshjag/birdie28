@@ -145,14 +145,36 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			
 			if (player_id < 0)
 				return;
+
+			int grav_x, grav_y;
+			double grav_angle;
+			
+			gcenter_calc(self->x, self->y, &grav_x, &grav_y);
+			grav_angle = atan2(grav_y, grav_x);
+
 			if (ingame_keystate[player_id].left) {
-				self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
+				double angle;
+
+				angle = grav_angle - M_PI/2.0;
+				
+				self->x_velocity = 300.0*cos(angle);
+				self->y_velocity = 300.0*sin(angle);
+
+				//self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
 				s->player[player_id].last_walk_direction = 0;
 			} else if (ingame_keystate[player_id].right) {
-				self->x_velocity = 300;// - block_property[s->player[player_id].holding->direction].mass/2;
+				double angle;
+
+				angle = grav_angle + M_PI/2.0;
+				
+				self->x_velocity = 300.0*cos(angle);
+				self->y_velocity = 300.0*sin(angle);
+
+				//self->x_velocity = 300;// - block_property[s->player[player_id].holding->direction].mass/2;
 				s->player[player_id].last_walk_direction = 1;
 			} else {
 				self->x_velocity = 0;
+				self->y_velocity = 0;
 			}
 			if (ingame_keystate[player_id].jump) {
 				DARNIT_KEYS keys;
