@@ -6,7 +6,7 @@
 #include <darnit/darnit.h>
 //#include "sfx.h"
 
-//#include "movable.h"
+#include "movable.h"
 #include "player.h"
 //#include "bullet.h"
 //#include "blocklogic.h"
@@ -64,8 +64,8 @@ struct PlayerTimer {
 struct GameStateStruct {
 	int	player_id;
 	bool is_host;
-	//MOVABLE			movable;
-	//DARNIT_MAP		*active_level;
+	MOVABLE			movable;
+	DARNIT_MAP		*active_level;
 //	DARNIT_TILESHEET	*_7seg;
 //	BULLET			bullet;
 //	struct HealthbarStruct	healthbar;
