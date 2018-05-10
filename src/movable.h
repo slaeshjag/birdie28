@@ -3,9 +3,7 @@
 
 #include <darnit/darnit.h>
 
-#define	GRAVITY_CENTER_X	100
-#define	GRAVITY_CENTER_Y	100
-#define	GRAVITY_CAP		10
+#define GRAVITY_CAP		40
 #define	GRAVITY_SCALE		1
 
 #define	COLLISION_NONE	0x00000
