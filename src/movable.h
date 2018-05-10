@@ -3,7 +3,7 @@
 
 #include <darnit/darnit.h>
 
-#define GRAVITY_CAP		40
+#define GRAVITY_CAP		4
 #define	GRAVITY_SCALE		1
 
 #define	COLLISION_NONE	0x00000

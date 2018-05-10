@@ -22,10 +22,10 @@ int movableInit() {
 }
 
 
-int _test_boundaries(int x, int y) {
+int _test_boundaries(int x, int y, int x2, int y2) {
 	int center_x, center_y, radius;
 	const char *xprop, *yprop, *rprop;
-
+	
 	if (!strcmp(xprop = d_map_prop(s->active_level->prop, "center_x"), "NO SUCH KEY"))
 		center_x = 100;
 	else
@@ -40,10 +40,16 @@ int _test_boundaries(int x, int y) {
 		radius = atoi(rprop);
 	x -= center_x;
 	y -= center_y;
-	if ((x * x + y * y) < radius*radius)
-		return 1;
-	else
+	if ((x * x + y * y) >= radius*radius)
 		return 0;
+	if ((x2 * x2 + y * y) >= radius*radius)
+		return 0;
+	if ((x * x + y2 * y2) >= radius*radius)
+		return 0;
+	if ((x2 * x2 + y2 * y2) >= radius*radius)
+		return 0;
+	
+	return 1;
 }
 
 
@@ -287,16 +293,16 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 			entry->y_gravity = gravity_y;
 		}
 
-		if (!_test_boundaries(entry->x/1000, entry->y/1000)) {
+		if (!_test_boundaries(entry->x/1000, entry->y/1000, entry->w, entry->h)) {
 			entry->gravity_blocked = 1;
 			return 1;
 		}
 
 		/* Y-axis */
-		delta_y = (entry->y_gravity * d_last_frame_time());
+		delta_y = (entry->y_gravity * d_last_frame_time() / 1000);
 
 		/* X-axis */
-		delta_x = entry->x_gravity * d_last_frame_time();
+		delta_x = entry->x_gravity * d_last_frame_time() / 1000;
 		/* TODO: STUB */
 
 		p = delta_x * 1000 / (delta_y ? delta_y : 1);
@@ -425,6 +431,7 @@ void movableLoop() {
 			if (s->movable.movable[i].ai)
 				s->movable.movable[i].ai(s, &s->movable.movable[i], MOVABLE_MSG_LOOP);
 			movableGravity(&s->movable.movable[i]);
+			printf("Player at %i %i\n", s->movable.movable[i].x / 1000, s->movable.movable[i].y / 1000);
 		}
 
 
