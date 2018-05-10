@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="128" height="128" tilewidth="32" tileheight="32" nextobjectid="10">
  <properties>
+  <property name="center_x" value="2048"/>
+  <property name="center_y" value="2048"/>
+  <property name="radius" value="2000"/>
   <property name="tileset" value="res/tileset.png"/>
  </properties>
  <tileset firstgid="1" name="collision" tilewidth="32" tileheight="32" tilecount="32">
@@ -17,7 +20,7 @@
   </data>
  </layer>
  <objectgroup name="Object Layer 1">
-  <object id="1" name="player0" x="416" y="192" width="32" height="32">
+  <object id="1" name="player0" x="2016" y="2016" width="32" height="32">
    <properties>
     <property name="ai" value="player"/>
     <property name="player_id" value="0"/>

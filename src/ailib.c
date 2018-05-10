@@ -242,3 +242,20 @@ void ailib_torpedo(int movable) {
 	player_id = _get_player_id(&s->movable.movable[movable]);
 	_die(&s->movable.movable[movable], player_id);
 }
+
+void ai_enemy(void *dummy, void *entry, MOVABLE_MSG msg) {
+        MOVABLE_ENTRY *self = entry;
+        int i;
+        
+        switch (msg) {
+                case MOVABLE_MSG_INIT:
+                        
+                        break;
+		case MOVABLE_MSG_LOOP:
+
+			break;
+                default:
+                        break;
+        }
+}
+

@@ -1,5 +1,6 @@
 #include "main.h"
 #include "ingame.h"
+#include "camera.h"
 #include "network/protocol.h"
 #include <stdbool.h>
 #include <string.h>
@@ -30,15 +31,15 @@ void ingame_init() {
 //	healthbar_init();
 //	soundeffects_init();
 
-/*	for (i = 0; i < s->movable.movables; i++) {
+	for (i = 0; i < s->movable.movables; i++) {
 		if (!(playerid_str = d_map_prop(s->active_level->object[i].ref, "player_id")))
 			continue;
-		if (atoi(playerid_str) == s->player_id + 1) {
+		if (atoi(playerid_str) == s->player_id) {
 			s->camera.follow = i;
 			break;
 		}
 	}
-*/
+
 }
 
 
@@ -59,34 +60,21 @@ void ingame_loop() {
 		
 	}
 	
-//	camera_work();
-	d_map_camera_move(s->active_level, 30, 0);
+	camera_work();
+	d_map_camera_move(s->active_level, s->camera.x, s->camera.y);
 	
 	for (i = 0; i < s->active_level->layers; i++) {
 		d_render_offset(0, 0);
 		d_render_tint(255, 255, 255, 255);
 //		d_render_tile_blit(s->active_level->layer[i].ts, 0, 0, 1);
 		d_tilemap_draw(s->active_level->layer[i].tilemap);
-		d_render_offset(30, 0);
+		d_render_offset(s->camera.x, s->camera.y);
+		movableLoopRender(i);
 		
 	}
 	
-	//bullet_render_loop();
 	
-	for (i = 0; i < s->active_level->layers; i++) {
-		movableLoopRender(i);
-	}
-	
-	for(i = 0; i < PLAYER_CAP; i++) {
-		if(s->player[i].active) {
-	//		d_particle_draw(s->player[i].blood);
-		}
-	}
-	
-	//for(i = 0; i < 3; i++)
-	//	d_particle_draw(s->explosion[i]);
-	
-	d_render_offset(0, 0);
+	//d_render_offset(0, 0);
 //	healthbar_draw();
 	ingame_client_keyboard();
 }

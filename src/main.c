@@ -151,7 +151,7 @@ int main(int argc, char  **argv) {
 	char font_path[512];
 	char *tmp;
 	
-	d_init_custom(GAME_TITLE " ~ //achtung fulkod", DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, "birdie27", NULL);
+	d_init_custom(GAME_TITLE " ~ //achtung fulkod", DISPLAY_WIDTH, DISPLAY_HEIGHT, 0, "birdie28", NULL);
 	
 	srand(time(NULL));
 	
