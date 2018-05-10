@@ -21,6 +21,31 @@ int movableInit() {
 }
 
 
+int _test_boundaries(int x, int y) {
+	int center_x, center_y, radius;
+	const char *xprop, *yprop, *rprop;
+
+	if (!(xprop = d_map_prop(s->active_level, "center_x")))
+		center_x = 100;
+	else
+		center_x = atoi(xprop);
+	if (!(yprop = d_map_prop(s->active_level, "center_y")))
+		center_x = 100;
+	else
+		center_y = atoi(yprop);
+	if (!(rprop = d_map_prop(s->active_level, "radius")))
+		radius = 50;
+	else
+		radius = atoi(rprop);
+	x -= center_x;
+	y -= center_y;
+	if ((x * x + y * y) < radius*radius)
+		return 1;
+	else
+		return 0;
+}
+
+
 void gcenter_calc(int x, int y, int *gx, int *gy) {
 	x = (x - GRAVITY_CENTER_X) * GRAVITY_SCALE;
 	y = (y - GRAVITY_CENTER_Y) * GRAVITY_SCALE;
@@ -179,7 +204,7 @@ void movableRespawn() {
 }
 
 
-void movableMoveDo(DARNIT_MAP_LAYER *layer, int *pos, int *delta, int *vel, int space, int col, int hit_off, int vel_r, int i, int i_b) {
+int movableMoveDo(DARNIT_MAP_LAYER *layer, int *pos, int *delta, int *vel, int space, int col, int hit_off, int vel_r, int i, int i_b) {
 	int u, t, tile_w, tile_h, map_w, i_2;
 	unsigned int *map_d;
 	tile_w = layer->tile_w;
@@ -188,7 +213,7 @@ void movableMoveDo(DARNIT_MAP_LAYER *layer, int *pos, int *delta, int *vel, int 
 	map_d = layer->tilemap->data;
 
 	if (!(*delta))
-		return;
+		return 0;
 	u = (*pos) / 1000 + hit_off;
 	t = u + (((*delta) > 0) ? 1 : -1);
 
@@ -203,7 +228,7 @@ void movableMoveDo(DARNIT_MAP_LAYER *layer, int *pos, int *delta, int *vel, int 
 	if (u == t) {
 		(*pos) += space;
 		(*delta) -= space;
-		return;
+		return 0;
 	}
 
 	i_2 = (i < 0) ? t * map_w + (abs(i) + i_b) / tile_w : ((i + i_b) / tile_h) * map_w + t;
@@ -212,12 +237,12 @@ void movableMoveDo(DARNIT_MAP_LAYER *layer, int *pos, int *delta, int *vel, int 
 	if (map_d[i] & col || map_d[i_2] & col) {
 		(*vel) = vel_r;
 		(*delta) = 0;
-		return;
+		return 1;
 	}
 
 	(*pos) += space;
 	(*delta) -= space;
-	return;
+	return 0;
 }
 
 
@@ -238,6 +263,7 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 	hit_h--;
 
 	if (entry->gravity_effect) {
+		entry->gravity_blocked = 0;
 		gcenter_calc(entry->x / 1000, entry->y / 1000, &gravity_x, &gravity_y);
 		entry->x_gravity += gravity_x * d_last_frame_time();
 		entry->y_gravity += gravity_y * d_last_frame_time();
@@ -246,6 +272,10 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 			gravity_y = MOV_TERMINAL_VELOCITY * entry->y_gravity / sqrt(entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity);
 		}
 
+		if (_test_boundaries(entry->x/1000, entry->y/1000)) {
+			entry->gravity_blocked = 1;
+			return 1;
+		}
 
 		/* Y-axis */
 		delta_y = (entry->y_gravity * d_last_frame_time());
@@ -267,12 +297,13 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 
 				if (delta_x > 0) {
 					r = 1000 - r;
-					movableMoveDo(layer, &entry->x, &delta_x, &entry->x_velocity, r, COLLISION_LEFT, hit_x + hit_w, 0, entry->y / 1000 + hit_y, hit_h);
+					entry->gravity_blocked |= (movableMoveDo(layer, &entry->x, &delta_x, &entry->x_velocity, r, COLLISION_LEFT, hit_x + hit_w, 0, entry->y / 1000 + hit_y, hit_h));
+						
 				} else { 
 					if (!r)
 						r = 1000;
 					r *= -1;
-					movableMoveDo(layer, &entry->x, &delta_x, &entry->x_velocity, r, COLLISION_RIGHT, hit_x, 0, entry->y / 1000 + hit_y, hit_h);
+					entry->gravity_blocked |= movableMoveDo(layer, &entry->x, &delta_x, &entry->x_velocity, r, COLLISION_RIGHT, hit_x, 0, entry->y / 1000 + hit_y, hit_h);
 				}
 			} else {
 				r = entry->y % 1000;
@@ -284,11 +315,12 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 			
 				if (delta_y > 0) {
 					r = 1000 - r;
-					movableMoveDo(layer, &entry->y, &delta_y, &entry->y_velocity, r, COLLISION_TOP, hit_y + hit_h, 0, entry->x / -1000 - hit_x, hit_w);
+					entry->gravity_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_velocity, r, COLLISION_TOP, hit_y + hit_h, 0, entry->x / -1000 - hit_x, hit_w);
 				} else {
 					if (!r)
 						r = 1000;
 					r *= -1;
+					entry->gravity_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_velocity, r, COLLISION_BOTTOM, hit_y, -1, entry->x / -1000 - hit_x, hit_w);
 				}
 			} 
 
