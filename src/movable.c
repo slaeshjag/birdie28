@@ -26,15 +26,15 @@ int _test_boundaries(int x, int y) {
 	int center_x, center_y, radius;
 	const char *xprop, *yprop, *rprop;
 
-	if (!strcmp(xprop = d_map_prop(s->active_level, "center_x"), "NO SUCH KEY"))
+	if (!strcmp(xprop = d_map_prop(s->active_level->prop, "center_x"), "NO SUCH KEY"))
 		center_x = 100;
 	else
 		center_x = atoi(xprop);
-	if (!strcmp(yprop = d_map_prop(s->active_level, "center_y"), "NO SUCH KEY"))
+	if (!strcmp(yprop = d_map_prop(s->active_level->prop, "center_y"), "NO SUCH KEY"))
 		center_x = 100;
 	else
 		center_y = atoi(yprop);
-	if (!strcmp(rprop = d_map_prop(s->active_level, "radius"), "NO SUCH KEY"))
+	if (!strcmp(rprop = d_map_prop(s->active_level->prop, "radius"), "NO SUCH KEY"))
 		radius = 500;
 	else
 		radius = atoi(rprop);
@@ -51,11 +51,11 @@ void gcenter_calc(int x, int y, int *gx, int *gy) {
 	int center_x, center_y;
 	const char *xprop, *yprop;
 	
-	if (!strcmp(xprop = d_map_prop(s->active_level, "center_x"), "NO SUCH KEY"))
+	if (!strcmp(xprop = d_map_prop(s->active_level->prop, "center_x"), "NO SUCH KEY"))
 		center_x = 100;
 	else
 		center_x = atoi(xprop);
-	if (!strcmp(yprop = d_map_prop(s->active_level, "center_y"), "NO SUCH KEY"))
+	if (!strcmp(yprop = d_map_prop(s->active_level->prop, "center_y"), "NO SUCH KEY"))
 		center_y = 100;
 	else
 		center_y = atoi(yprop);
@@ -278,8 +278,8 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 	if (entry->gravity_effect) {
 		entry->gravity_blocked = 0;
 		gcenter_calc(entry->x / 1000, entry->y / 1000, &gravity_x, &gravity_y);
-		entry->x_gravity = gravity_x * d_last_frame_time();
-		entry->y_gravity = gravity_y * d_last_frame_time();
+		entry->x_gravity += gravity_x * d_last_frame_time();
+		entry->y_gravity += gravity_y * d_last_frame_time();
 		if ((entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity) > MOV_TERMINAL_VELOCITY * MOV_TERMINAL_VELOCITY) {
 			gravity_x = MOV_TERMINAL_VELOCITY * entry->x_gravity / sqrt(entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity);
 			gravity_y = MOV_TERMINAL_VELOCITY * entry->y_gravity / sqrt(entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity);
@@ -433,7 +433,7 @@ void movableLoop() {
 		d_sprite_move(s->movable.movable[i].sprite, s->movable.movable[i].x / 1000, s->movable.movable[i].y / 1000);
 		d_sprite_hitbox(s->movable.movable[i].sprite, &h_x, &h_y, &h_w, &h_h);
 //		d_sprite_rotate(s->movable.movable[i].sprite, s->movable.movable[i].angle>1800?s->movable.movable[i].angle:3600-s->movable.movable[i].angle);
-		//d_sprite_rotate(s->movable.movable[i].sprite, s->movable.movable[i].angle);
+		d_sprite_rotate(s->movable.movable[i].sprite, s->movable.movable[i].angle);
 		d_bbox_move(s->movable.bbox, i, s->movable.movable[i].x / 1000 + h_x, s->movable.movable[i].y / 1000 + h_y);
 		d_bbox_resize(s->movable.bbox, i, h_w, h_h);
 		
