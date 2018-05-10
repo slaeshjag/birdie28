@@ -85,6 +85,7 @@ void movableSpawn() {
 		s->movable.movable[i].x = s->active_level->object[i].x * 1000 * s->active_level->layer->tile_w;
 		s->movable.movable[i].y = s->active_level->object[i].y * 1000 * s->active_level->layer->tile_h;
 		s->movable.movable[i].l = s->active_level->object[i].l;
+		printf("spawn %i at %i %i\n", i, s->movable.movable[i].x / 1000, s->movable.movable[i].y / 1000);
 		s->movable.movable[i].direction = 0;
 		//s->movable.movable[i].hp = 1;
 		s->movable.movable[i].angle = 0;
@@ -400,14 +401,15 @@ void movableLoop() {
 
 	for (j = 0; j < s->movable.movables; j++) {
 		i = j;
-		if (!s->movable.movable[i].hp)
-			continue;
+		//if (!s->movable.movable[i].hp)
+		//	continue;
 		if (master) {
 			if (_get_player_id(&s->movable.movable[i]) >= 0)
 				players_active++, winning_player = _get_player_id(&s->movable.movable[i]);
 			if (s->movable.movable[i].ai)
 				s->movable.movable[i].ai(s, &s->movable.movable[i], MOVABLE_MSG_LOOP);
-			movableGravity(&s->movable.movable[i]);
+			printf("player %i at %i %i\n", i, s->movable.movable[i].x / 1000, s->movable.movable[i].y / 1000);
+			//movableGravity(&s->movable.movable[i]);
 		}
 
 
@@ -416,15 +418,18 @@ void movableLoop() {
 		d_sprite_move(s->movable.movable[i].sprite, s->movable.movable[i].x / 1000, s->movable.movable[i].y / 1000);
 		d_sprite_hitbox(s->movable.movable[i].sprite, &h_x, &h_y, &h_w, &h_h);
 //		d_sprite_rotate(s->movable.movable[i].sprite, s->movable.movable[i].angle>1800?s->movable.movable[i].angle:3600-s->movable.movable[i].angle);
-		d_sprite_rotate(s->movable.movable[i].sprite, s->movable.movable[i].angle);
+		//d_sprite_rotate(s->movable.movable[i].sprite, s->movable.movable[i].angle);
 		d_bbox_move(s->movable.bbox, i, s->movable.movable[i].x / 1000 + h_x, s->movable.movable[i].y / 1000 + h_y);
 		d_bbox_resize(s->movable.bbox, i, h_w, h_h);
+		
+		#if 0
 		if (s->movable.movable[i].hp <= 0) {
 			d_bbox_delete(s->movable.bbox, i);
 			if (s->movable.movable[i].ai)
 				s->movable.movable[i].ai(s, &s->movable.movable[i], MOVABLE_MSG_DESTROY);
 			/* TODO: Make it play some sound effect here */
 		}
+		#endif
 	}
 
 	if (players_active <= 1 && master) {
@@ -460,9 +465,9 @@ void movableLoopRender(int layer) {
 	for (i = 0; i < s->movable.movables; i++) {
 		if (s->movable.movable[i].l != layer)
 			continue;
-		if (!s->movable.movable[i].hp) {
+		/*if (!s->movable.movable[i].hp) {
 			continue;
-		}
+		}*/
 		d_sprite_draw(s->movable.movable[i].sprite);
 	}
 }
