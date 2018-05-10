@@ -1,0 +1,18 @@
+target=i586-mingw32msvc-
+
+green=$(tput setaf 2)
+reset=$(tput sgr0)
+[ "$TARGET" == "$target" ] || export PS1="[\[$green\]mingw32\[$reset\]] $PS1"
+unset green
+unset reset
+
+export TARGET="$target"
+export AR=${TARGET}ar
+export AS=${TARGET}as
+export LD=${TARGET}ld
+export CC=${TARGET}gcc
+export CXX=${TARGET}g++
+export CPP=${TARGET}cpp
+
+
+unset target
