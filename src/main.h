@@ -6,14 +6,14 @@
 #include <darnit/darnit.h>
 //#include "sfx.h"
 
-//#include "movable.h"
+#include "movable.h"
 #include "player.h"
 //#include "bullet.h"
 //#include "blocklogic.h"
 //#include "turret.h"
-#define DISPLAY_WIDTH 800
-#define DISPLAY_HEIGHT 600
-#define PORT 1339
+#define DISPLAY_WIDTH 1280
+#define DISPLAY_HEIGHT 720
+#define PORT 1340
 
 #define GAME_TITLE "birdie28"
 
@@ -57,7 +57,7 @@ extern int server_sock;
 struct GameStateStruct {
 	int	player_id;
 	bool is_host;
-	//MOVABLE			movable;
+	MOVABLE			movable;
 	//DARNIT_MAP		*active_level;
 //	DARNIT_TILESHEET	*_7seg;
 //	BULLET			bullet;
