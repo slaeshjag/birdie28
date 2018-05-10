@@ -25,16 +25,16 @@ int _test_boundaries(int x, int y) {
 	int center_x, center_y, radius;
 	const char *xprop, *yprop, *rprop;
 
-	if (!(xprop = d_map_prop(s->active_level, "center_x")))
+	if (!strcmp(xprop = d_map_prop(s->active_level, "center_x"), "NO SUCH KEY"))
 		center_x = 100;
 	else
 		center_x = atoi(xprop);
-	if (!(yprop = d_map_prop(s->active_level, "center_y")))
+	if (!strcmp(yprop = d_map_prop(s->active_level, "center_y"), "NO SUCH KEY"))
 		center_x = 100;
 	else
 		center_y = atoi(yprop);
-	if (!(rprop = d_map_prop(s->active_level, "radius")))
-		radius = 50;
+	if (!strcmp(rprop = d_map_prop(s->active_level, "radius"), "NO SUCH KEY"))
+		radius = 500;
 	else
 		radius = atoi(rprop);
 	x -= center_x;
@@ -47,12 +47,24 @@ int _test_boundaries(int x, int y) {
 
 
 void gcenter_calc(int x, int y, int *gx, int *gy) {
-	x = (x - GRAVITY_CENTER_X) * GRAVITY_SCALE;
-	y = (y - GRAVITY_CENTER_Y) * GRAVITY_SCALE;
+	int center_x, center_y;
+	const char *xprop, *yprop;
+	
+	if (!strcmp(xprop = d_map_prop(s->active_level, "center_x"), "NO SUCH KEY"))
+		center_x = 100;
+	else
+		center_x = atoi(xprop);
+	if (!strcmp(yprop = d_map_prop(s->active_level, "center_y"), "NO SUCH KEY"))
+		center_y = 100;
+	else
+		center_y = atoi(yprop);
+	
+	x = (x - center_x) * GRAVITY_SCALE;
+	y = (y - center_y) * GRAVITY_SCALE;
 
 	if (x * x + y * y > GRAVITY_CAP * GRAVITY_CAP) {
-		*gx = -(x * GRAVITY_CAP / sqrt(x * x + y * y));
-		*gy = -(y * GRAVITY_CAP / sqrt(x * x + y * y));
+		*gx = (x * GRAVITY_CAP / sqrt(x * x + y * y));
+		*gy = (y * GRAVITY_CAP / sqrt(x * x + y * y));
 	} else
 		*gx = x, *gy = y;
 
@@ -269,11 +281,13 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 		entry->x_gravity += gravity_x * d_last_frame_time();
 		entry->y_gravity += gravity_y * d_last_frame_time();
 		if ((entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity) > MOV_TERMINAL_VELOCITY * MOV_TERMINAL_VELOCITY) {
-			gravity_x = MOV_TERMINAL_VELOCITY * entry->x_gravity / sqrt(entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity);
-			gravity_y = MOV_TERMINAL_VELOCITY * entry->y_gravity / sqrt(entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity);
+			gravity_x = GRAVITY_CAP * entry->x_gravity / sqrt(entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity);
+			gravity_y = GRAVITY_CAP * entry->y_gravity / sqrt(entry->x_gravity * entry->x_gravity + entry->y_gravity + entry->y_gravity);
+			entry->x_gravity = gravity_x;
+			entry->y_gravity = gravity_y;
 		}
 
-		if (_test_boundaries(entry->x/1000, entry->y/1000)) {
+		if (!_test_boundaries(entry->x/1000, entry->y/1000)) {
 			entry->gravity_blocked = 1;
 			return 1;
 		}
@@ -409,7 +423,7 @@ void movableLoop() {
 			if (s->movable.movable[i].ai)
 				s->movable.movable[i].ai(s, &s->movable.movable[i], MOVABLE_MSG_LOOP);
 			printf("player %i at %i %i\n", i, s->movable.movable[i].x / 1000, s->movable.movable[i].y / 1000);
-			//movableGravity(&s->movable.movable[i]);
+			movableGravity(&s->movable.movable[i]);
 		}
 
 
