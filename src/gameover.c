@@ -6,6 +6,23 @@
 
 GameOver game_over;
 
+
+int gameover_calculate_score(int player) {
+	int min, i, points;
+
+	min = 9999;
+	for (i = 0; i < 4; i++)
+		if (s->player[player].apple[i] < min)
+			min = s->player[player].apple[i];
+	points = 5 * 4 * min;
+
+	for (i = 0; i < 4; i++)
+		points += 2 * (s->player[player].apple[i] - min);
+
+	return points;
+}
+
+
 static void button_callback(MuilWidget *widget, unsigned int type, MuilEvent *e) {
 	if(widget == game_over.button.menu) {
 		restart_to_menu(player_name);
