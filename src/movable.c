@@ -305,17 +305,21 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 			entry->y_gravity = gravity_y;
 		}
 
-		if (!_test_boundaries(entry->x/1000, entry->y/1000, d_sprite_width(entry->sprite), d_sprite_height(entry->sprite))) {
-			entry->gravity_blocked = 1;
-			return 1;
-		}
+		printf("Gravity is %i, %i\n", entry->x_gravity, entry->y_gravity);
+
 
 		/* Y-axis */
-		delta_y = (entry->y_gravity * d_last_frame_time() / 1000);
+		delta_y = (entry->y_gravity * d_last_frame_time() / 30);
 
 		/* X-axis */
-		delta_x = entry->x_gravity * d_last_frame_time() / 1000;
+		delta_x = entry->x_gravity * d_last_frame_time() / 30;
+		printf("ΔX = %i, ΔY = %i\n", delta_x, delta_y);
+	
 		/* TODO: STUB */
+		if (!_test_boundaries((entry->x + delta_x)/1000, (entry->y + delta_y)/1000, d_sprite_width(entry->sprite), d_sprite_height(entry->sprite))) {
+			entry->gravity_blocked = 1;
+			goto nogravity;
+		}
 
 		p = delta_x * 1000 / (delta_y ? delta_y : 1);
 
@@ -327,16 +331,17 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 					delta_x = 0;
 					continue;
 				}
-
+				
+				
 				if (delta_x > 0) {
 					r = 1000 - r;
-					entry->gravity_blocked |= (movableMoveDo(layer, &entry->x, &delta_x, &entry->x_velocity, r, COLLISION_LEFT, hit_x + hit_w, 0, entry->y / 1000 + hit_y, hit_h));
+					entry->gravity_blocked |= (movableMoveDo(layer, &entry->x, &delta_x, &entry->x_gravity, r, COLLISION_LEFT, hit_x + hit_w, 0, entry->y / 1000 + hit_y, hit_h));
 						
 				} else { 
 					if (!r)
 						r = 1000;
 					r *= -1;
-					entry->gravity_blocked |= movableMoveDo(layer, &entry->x, &delta_x, &entry->x_velocity, r, COLLISION_RIGHT, hit_x, 0, entry->y / 1000 + hit_y, hit_h);
+					entry->gravity_blocked |= movableMoveDo(layer, &entry->x, &delta_x, &entry->x_gravity, r, COLLISION_RIGHT, hit_x, 0, entry->y / 1000 + hit_y, hit_h);
 				}
 			} else {
 				r = entry->y % 1000;
@@ -348,30 +353,40 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 			
 				if (delta_y > 0) {
 					r = 1000 - r;
-					entry->gravity_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_velocity, r, COLLISION_TOP, hit_y + hit_h, 0, entry->x / -1000 - hit_x, hit_w);
+					entry->gravity_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_gravity, r, COLLISION_TOP, hit_y + hit_h, 0, entry->x / -1000 - hit_x, hit_w);
 				} else {
 					if (!r)
 						r = 1000;
 					r *= -1;
-					entry->gravity_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_velocity, r, COLLISION_BOTTOM, hit_y, -1, entry->x / -1000 - hit_x, hit_w);
+					entry->gravity_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_gravity, r, COLLISION_BOTTOM, hit_y, -1, entry->x / -1000 - hit_x, hit_w);
 				}
 			} 
 
 		}
 	}
 
-	if (entry->gravity_blocked)
+nogravity:
+
+	if (entry->gravity_blocked) {
 		entry->x_gravity = entry->y_gravity = 0;
+		printf("Bonk!\n");
+	}
 
 	delta_x = (entry->x_velocity * d_last_frame_time());
 	delta_y = (entry->y_velocity * d_last_frame_time());
 	p = delta_x * 1000 / (delta_y ? delta_y : 1);
+	
 	
 	while (delta_x || delta_y) {
 		if (delta_x && (!delta_y || delta_x * 1000 / (delta_y ? delta_y : 1) > p)) {
 			r = entry->x % 1000;
 			if (r + delta_x < 1000 && r + delta_x >= 0) {
 				entry->x += delta_x;
+				delta_x = 0;
+				continue;
+			}
+			
+			if (!_test_boundaries((entry->x + delta_x)/1000, (entry->y)/1000, d_sprite_width(entry->sprite), d_sprite_height(entry->sprite))) {
 				delta_x = 0;
 				continue;
 			}
@@ -402,6 +417,11 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 				delta_y = 0;
 				continue;
 			} 
+			
+			if (!_test_boundaries((entry->x)/1000, (entry->y + delta_y)/1000, d_sprite_width(entry->sprite), d_sprite_height(entry->sprite))) {
+				delta_y = 0;
+				continue;
+			}
 
 			if (delta_y > 0) {
 				r = 1000 - r;
