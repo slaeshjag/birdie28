@@ -305,7 +305,7 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 			entry->y_gravity = gravity_y;
 		}
 
-		printf("Gravity is %i, %i\n", entry->x_gravity, entry->y_gravity);
+		//printf("Gravity is %i, %i\n", entry->x_gravity, entry->y_gravity);
 
 
 		/* Y-axis */
@@ -313,10 +313,10 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 
 		/* X-axis */
 		delta_x = entry->x_gravity * d_last_frame_time() / 30;
-		printf("ΔX = %i, ΔY = %i\n", delta_x, delta_y);
+		//printf("ΔX = %i, ΔY = %i\n", delta_x, delta_y);
 	
 		/* TODO: STUB */
-		if (!_test_boundaries((entry->x + delta_x)/1000, (entry->y + delta_y)/1000, d_sprite_width(entry->sprite), d_sprite_height(entry->sprite))) {
+		if (!_test_boundaries((entry->x + delta_x)/1000 + util_sprite_xoff(entry->sprite), (entry->y + delta_y)/1000 + util_sprite_yoff(entry->sprite), util_sprite_width(entry->sprite), util_sprite_height(entry->sprite))) {
 			entry->gravity_blocked = 1;
 			goto nogravity;
 		}
@@ -369,7 +369,7 @@ nogravity:
 
 	if (entry->gravity_blocked) {
 		entry->x_gravity = entry->y_gravity = 0;
-		printf("Bonk!\n");
+		//printf("Bonk!\n");
 	}
 
 	delta_x = (entry->x_velocity * d_last_frame_time());
@@ -386,7 +386,7 @@ nogravity:
 				continue;
 			}
 			
-			if (!_test_boundaries((entry->x + delta_x)/1000, (entry->y)/1000, d_sprite_width(entry->sprite), d_sprite_height(entry->sprite))) {
+			if (!_test_boundaries((entry->x + delta_x)/1000 + util_sprite_xoff(entry->sprite), (entry->y)/1000 + util_sprite_yoff(entry->sprite), util_sprite_width(entry->sprite), util_sprite_height(entry->sprite))) {
 				delta_x = 0;
 				continue;
 			}
@@ -418,7 +418,7 @@ nogravity:
 				continue;
 			} 
 			
-			if (!_test_boundaries((entry->x)/1000, (entry->y + delta_y)/1000, d_sprite_width(entry->sprite), d_sprite_height(entry->sprite))) {
+			if (!_test_boundaries((entry->x)/1000 + util_sprite_xoff(entry->sprite), (entry->y + delta_y)/1000 + util_sprite_yoff(entry->sprite), util_sprite_width(entry->sprite), util_sprite_height(entry->sprite))) {
 				delta_y = 0;
 				continue;
 			}
@@ -463,7 +463,7 @@ void movableLoop() {
 			if (s->movable.movable[i].ai)
 				s->movable.movable[i].ai(s, &s->movable.movable[i], MOVABLE_MSG_LOOP);
 			movableGravity(&s->movable.movable[i]);
-			printf("Player at %i %i\n", s->movable.movable[i].x / 1000, s->movable.movable[i].y / 1000);
+			//printf("Player at %i %i\n", s->movable.movable[i].x / 1000, s->movable.movable[i].y / 1000);
 		}
 
 

@@ -77,6 +77,7 @@ void server_handle_client(ClientList *cli) {
 			case PACKET_TYPE_KEYPRESS:
 				HANDLE_KEY(left);
 				HANDLE_KEY(right);
+				HANDLE_KEY(jump);
 				break;
 			
 			case PACKET_TYPE_BLOCK_PLACE:

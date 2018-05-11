@@ -149,29 +149,31 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			int grav_x, grav_y;
 			double grav_angle;
 			
-			printf("%i %i\n", self->x, self->y);
-			gcenter_calc(self->x, self->y, &grav_x, &grav_y);
+			//printf("%i %i\n", self->x, self->y);
+			gcenter_calc(self->x/1000, self->y/1000, &grav_x, &grav_y);
 			grav_angle = atan2(grav_y, grav_x);
 
-			printf("player id %i is movable id %i\n", player_id, self->id);
+			//printf("player id %i is movable id %i\n", player_id, self->id);
 
 			if (ingame_keystate[player_id].left) {
 				double angle;
 
-				angle = grav_angle - M_PI/2.0;
+				angle = grav_angle - M_PI_2;
 				
-				self->x_velocity = 300.0*cos(angle);
-				self->y_velocity = 300.0*sin(angle);
+				self->x_velocity = 300.0*cos(angle) + 40.0*cos(angle-M_PI_2);
+				self->y_velocity = 300.0*sin(angle) + 40.0*sin(angle-M_PI_2);
+				printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 
 				//self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
 				s->player[player_id].last_walk_direction = 0;
 			} else if (ingame_keystate[player_id].right) {
 				double angle;
 
-				angle = grav_angle + M_PI/2.0;
+				angle = grav_angle + M_PI_2;
 				
-				self->x_velocity = 300.0*cos(angle);
-				self->y_velocity = 300.0*sin(angle);
+				self->x_velocity = 300.0*cos(angle) + 40.0*cos(angle + M_PI_2);
+				self->y_velocity = 300.0*sin(angle) + 40.0*sin(angle + M_PI_2);
+				printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 
 				//self->x_velocity = 300;// - block_property[s->player[player_id].holding->direction].mass/2;
 				s->player[player_id].last_walk_direction = 1;
@@ -181,11 +183,13 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			}
 			if (ingame_keystate[player_id].jump) {
 				DARNIT_KEYS keys;
-				
+			
+				printf("Jump!\n");
 				ingame_keystate[player_id].jump = 0;
 				
-				if (!self->y_velocity && !self->x_velocity) {
-					self->y_velocity = -400;
+				if (self->gravity_blocked) {
+					self->x_gravity = MOV_TERMINAL_VELOCITY * cos(grav_angle-M_PI);
+					self->y_gravity = MOV_TERMINAL_VELOCITY * sin(grav_angle-M_PI);
 				}
 			}
 			

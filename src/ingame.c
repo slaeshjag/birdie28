@@ -131,9 +131,10 @@ void ingame_client_keyboard() {
 	}
 	
 	if (newstate.jump ^ oldstate.jump) {
-		if (newstate.jump)
+		if (newstate.jump) {
+			printf("newstate jump\n");
 			pressevent.jump = true, releaseevent.jump = false;
-		else
+		} else
 			releaseevent.jump = true, pressevent.jump = false;
 	}
 
