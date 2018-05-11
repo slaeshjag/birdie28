@@ -152,16 +152,18 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			//printf("%i %i\n", self->x, self->y);
 			gcenter_calc(self->x/1000, self->y/1000, &grav_x, &grav_y);
 			grav_angle = atan2(grav_y, grav_x);
+			self->angle = -grav_angle * 1800 / M_PI + 900;
+
 
 			//printf("player id %i is movable id %i\n", player_id, self->id);
 
 			if (ingame_keystate[player_id].left) {
 				double angle;
 
-				angle = grav_angle - M_PI_2;
+				angle = grav_angle + M_PI_2;
 				
-				self->x_velocity = 300.0*cos(angle) + 40.0*cos(angle-M_PI_2);
-				self->y_velocity = 300.0*sin(angle) + 40.0*sin(angle-M_PI_2);
+				self->x_velocity = 300.0*cos(angle) + 40.0*cos(angle+M_PI_2);
+				self->y_velocity = 300.0*sin(angle) + 40.0*sin(angle+M_PI_2);
 				printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 
 				//self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
@@ -169,10 +171,10 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			} else if (ingame_keystate[player_id].right) {
 				double angle;
 
-				angle = grav_angle + M_PI_2;
+				angle = grav_angle - M_PI_2;
 				
-				self->x_velocity = 300.0*cos(angle) + 40.0*cos(angle + M_PI_2);
-				self->y_velocity = 300.0*sin(angle) + 40.0*sin(angle + M_PI_2);
+				self->x_velocity = 300.0*cos(angle) + 40.0*cos(angle - M_PI_2);
+				self->y_velocity = 300.0*sin(angle) + 40.0*sin(angle - M_PI_2);
 				printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 
 				//self->x_velocity = 300;// - block_property[s->player[player_id].holding->direction].mass/2;
