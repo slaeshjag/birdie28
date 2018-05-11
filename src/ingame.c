@@ -190,8 +190,14 @@ void ingame_client_keyboard() {
 	newstate.jump = d_keys_get().up;
 	newstate.action = d_keys_get().a;
 	newstate.suicide = d_keys_get().x;
-	if (d_keys_get().lmb)
+	if (d_keys_get().lmb) {
+		DARNIT_KEYS keys;
+		keys = d_keys_zero();
+		keys.lmb = 1;
+		d_keys_set(keys);
 		ingame_apple_bullet_fire();
+	}
+
 	
 	if(d_keys_get().select)
 		restart_to_menu(player_name);

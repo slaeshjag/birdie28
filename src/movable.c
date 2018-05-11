@@ -368,6 +368,7 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 
 nogravity:
 
+	entry->movement_blocked = 0;
 	if (entry->gravity_blocked) {
 		entry->x_gravity = entry->y_gravity = 0;
 		//printf("Bonk!\n");
@@ -389,6 +390,7 @@ nogravity:
 			
 			if (!_test_boundaries((entry->x + delta_x)/1000 + util_sprite_xoff(entry->sprite), (entry->y)/1000 + util_sprite_yoff(entry->sprite), util_sprite_width(entry->sprite), util_sprite_height(entry->sprite))) {
 				delta_x = 0;
+				entry->movement_blocked = 1;
 				continue;
 			}
 
@@ -399,7 +401,7 @@ nogravity:
 					continue;
 				}*/
 
-				movableMoveDo(layer, &entry->x, &delta_x, &entry->x_velocity, r, COLLISION_LEFT, hit_x + hit_w, 0, entry->y / 1000 + hit_y, hit_h);
+				entry->movement_blocked |= movableMoveDo(layer, &entry->x, &delta_x, &entry->x_velocity, r, COLLISION_LEFT, hit_x + hit_w, 0, entry->y / 1000 + hit_y, hit_h);
 			} else {
 				if (!r)
 					r = 1000;
@@ -409,7 +411,7 @@ nogravity:
 					continue;
 				}*/
 
-				movableMoveDo(layer, &entry->x, &delta_x, &entry->x_velocity, r, COLLISION_RIGHT, hit_x, 0, entry->y / 1000 + hit_y, hit_h);
+				entry->movement_blocked |= movableMoveDo(layer, &entry->x, &delta_x, &entry->x_velocity, r, COLLISION_RIGHT, hit_x, 0, entry->y / 1000 + hit_y, hit_h);
 			}
 		} else {	/* delta_y måste vara != 0 */
 			r = entry->y % 1000;
@@ -421,6 +423,7 @@ nogravity:
 			
 			if (!_test_boundaries((entry->x)/1000 + util_sprite_xoff(entry->sprite), (entry->y + delta_y)/1000 + util_sprite_yoff(entry->sprite), util_sprite_width(entry->sprite), util_sprite_height(entry->sprite))) {
 				delta_y = 0;
+				entry->movement_blocked = 1;
 				continue;
 			}
 
@@ -430,7 +433,7 @@ nogravity:
 					entry->y_velocity = 0, delta_y = 0;
 					continue;
 				}*/
-				movableMoveDo(layer, &entry->y, &delta_y, &entry->y_velocity, r, COLLISION_TOP, hit_y + hit_h, 0, entry->x / -1000 - hit_x, hit_w);
+				entry->movement_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_velocity, r, COLLISION_TOP, hit_y + hit_h, 0, entry->x / -1000 - hit_x, hit_w);
 			} else {
 				if (!r)
 					r = 1000;
@@ -439,7 +442,7 @@ nogravity:
 					entry->y_velocity = -1, delta_y = 0;
 					continue;
 				}*/
-				movableMoveDo(layer, &entry->y, &delta_y, &entry->y_velocity, r, COLLISION_BOTTOM, hit_y, -1, entry->x / -1000 - hit_x, hit_w);
+				entry->movement_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_velocity, r, COLLISION_BOTTOM, hit_y, -1, entry->x / -1000 - hit_x, hit_w);
 			}
 		}
 	}

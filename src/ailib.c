@@ -14,6 +14,7 @@
 #include <math.h>
 
 #define DEATH_VELOCITY 400
+#define	EFFECT_RANGE 200
 
 enum AI_APPLE_STATE {
 	AI_APPLE_STATE_HIDING,
@@ -50,6 +51,28 @@ struct AIPlayerState {
 	int			apple[4];
 	int			selected_apple;
 };
+
+
+static void _trigger_effect(int x, int y, int player, int effect) {
+	int i, dx, dy;
+
+	for (i = 0; i < PLAYER_CAP; i++) {
+		if (i == player)
+			continue;
+		if (!s->player[i].active)
+			continue;
+		dx = s->movable.movable[s->player[i].movable].x / 1000;
+		dy = s->movable.movable[s->player[i].movable].y / 1000;
+
+		dx -= x;
+		dy -= y;
+
+		if (dx * dx + dy * dy > EFFECT_RANGE * EFFECT_RANGE)
+			continue;
+
+		printf("Hit player %i\n", i);
+	}
+}
 
 
 static int _push_apple_count(int apple[4], int player, int selected) {
@@ -196,10 +219,10 @@ void ai_apple_bullet(void *dummy, void *entry, MOVABLE_MSG msg) {
 			} else {
 				self->gravity_effect = 1;
 				printf("Bullet at %i %i\n", self->x / 1000, self->y / 1000);
-				if (self->gravity_blocked) {
+				if (self->gravity_blocked || self->movement_blocked)  {
 					state->state = AI_APPLE_BULLET_STATE_IDLE;
 					printf("splat\n");
-					/* TODO: Cause effects */
+					_trigger_effect(self->x/1000, self->y/1000, _get_player_id(self), self->direction - 1);
 				}
 			}
 			

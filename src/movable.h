@@ -70,6 +70,7 @@ typedef struct {
 	void			*mystery_pointer;
 	int			flag;
 	int			gravity_blocked;
+	int			movement_blocked;
 } MOVABLE_ENTRY;
 	
 

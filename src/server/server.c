@@ -206,13 +206,17 @@ int server_thread(void *arg) {
 				p = move.raw;
 				
 				for(i = 0; i < s->movable.movables; i++) {
+					int angle;
 					*((uint16_t *) p) = (s->movable.movable[i].x)/1000;
 					p+= 2;
 					*((uint16_t *) p) = (s->movable.movable[i].y)/1000;
 					p+= 2;
 					*((uint8_t *) p) = s->movable.movable[i].direction;
 					p+= 1;
-					*((uint8_t *) p) = (s->movable.movable[i].angle / 10 / 2);
+					angle = s->movable.movable[i].angle;
+					if (angle < 0)
+						angle += 3600;
+					*((uint8_t *) p) = (angle / 10 / 2);
 					p += 1;
 					*((uint16_t *) p) = (s->movable.movable[i].hp);
 					p += 2;
