@@ -51,10 +51,14 @@ void menu_init() {
 	muil_vbox_add_child(menu_help.vbox, menu_help.label.title = muil_widget_create_label(gfx.font.large, "How to play"), 0);
 	muil_vbox_add_child(menu_help.vbox, muil_widget_create_spacer_size(0, 10), 0);
 	muil_vbox_add_child(menu_help.vbox, menu_help.label.title = muil_widget_create_label(gfx.font.small, 
-		"nope.avi\n"
+		"Steal all the apples!\n"
+		"Since the score is based on the amount of apples of the type you have the fewest of,\n"
+		"you need to collect an equal ammount of the different types of apples\n\n"
+		"The apples can also be used as ammunition, each type of apple has a different kind of damage effect.\n"
+		"Also, watch out for the old man, he does not like to get his apples stolen!\n"
 	), 0);
 	muil_vbox_add_child(menu_help.vbox, muil_widget_create_spacer(), 1);
-	muil_vbox_add_child(menu_help.vbox, menu_help.label.title = muil_widget_create_label(gfx.font.small, "2018 party hack for Birdie Gamedev compo\nh4xxel (http://h4xxel.org) & slaesjag (http://rdw.se) of //actung fulkod"), 0);
+	muil_vbox_add_child(menu_help.vbox, menu_help.label.title = muil_widget_create_label(gfx.font.small, "2018 party hack for Birdie Gamedev compo\nCode by h4xxel (http://h4xxel.org) & slaesjag (http://rdw.se) of //actung fulkod\nGrafics by Kalops, sound effects by B2"), 0);
 	
 	muil_vbox_add_child(menu.vbox, menu.label.title = muil_widget_create_label(gfx.font.large, GAME_TITLE), 1);
 	muil_vbox_add_child(menu.vbox, menu.label.author = muil_widget_create_label(gfx.font.small, "//actung fulkod"), 1);
