@@ -11,6 +11,7 @@
 #include "main.h"
 #include "gameover.h"
 #include "util.h"
+#include "effect.h"
 //#include "bullet.h"
 //#include "turret.h"
 
@@ -85,6 +86,21 @@ void ingame_applegague_blit(int player) {
 }
 
 
+static DARNIT_PARTICLE *_particle(DARNIT_PARTICLE_TYPE type, DARNIT_PARTICLE_MODE mode, int particles, Color color_start, Color color_target, int life, int angle_min, int angle_max, int size, int xgrav, int ygrav, int vel_min, int vel_max) {
+	DARNIT_PARTICLE *p;
+
+	p = d_particle_new(particles, type);
+	d_particle_color_start(p, color_start.r, color_start.g, color_start.b, color_start.a);
+	d_particle_color_target(p, color_target.r, color_target.g, color_target.b, color_target.a);
+	d_particle_emitter_angle(p, angle_max, angle_min);
+	d_particle_emitter_velocity(p, vel_min, vel_max);
+	d_particle_emitter_gravity(p, xgrav, ygrav);
+	d_particle_life(p, life);
+	d_particle_mode(p, mode);
+	d_particle_point_size(p, size);
+
+}
+
 void ingame_init() {
 	int i;
 	const char *playerid_str;
@@ -126,7 +142,22 @@ void ingame_init() {
 			break;
 		}
 	}
-
+	{
+		Color start = {255, 0, 0, 255}; Color target = {128, 0, 0, 0};
+		s->particle_effect[EFFECT_STUN] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_SHOWER, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 1, 1);
+	}
+	{
+		Color start = {0, 255, 0, 255}; Color target = {0, 128, 0, 0};
+		s->particle_effect[EFFECT_DROP] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_SHOWER, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 1, 1);
+	}
+	{
+		Color start = {0, 0, 255, 255}; Color target = {0, 0, 128, 0};
+		s->particle_effect[EFFECT_SLAPPED_AROUND] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_SHOWER, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 1, 1);
+	}
+	{
+		Color start = {255, 255, 0, 255}; Color target = {128, 128, 0, 0};
+		s->particle_effect[EFFECT_FUCKED_CONTROLS] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_SHOWER, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 1, 1);
+	}
 }
 
 
@@ -169,6 +200,8 @@ void ingame_loop() {
 		
 	}
 	
+	for(i = 0; i < PARTICLE_EFFECTS; i++)
+		d_particle_draw(s->particle_effect[i]);
 
 	d_render_offset(0, 0);
 	ingame_timer_blit(s->time_left2 / 1000, 1, 0);
@@ -188,7 +221,7 @@ void ingame_client_keyboard() {
 	newstate.left = d_keys_get().left;
 	newstate.right = d_keys_get().right;
 	newstate.jump = d_keys_get().up;
-	newstate.action = d_keys_get().a;
+	newstate.action = d_keys_get().down;
 	newstate.suicide = d_keys_get().x;
 	if (d_keys_get().lmb) {
 		DARNIT_KEYS keys;
@@ -323,6 +356,12 @@ void ingame_network_handler() {
 			case PACKET_TYPE_EXIT:
 				//game_over_set_team(pack.exit.team);
 				game_state(GAME_STATE_GAME_OVER);
+				break;
+
+			case PACKET_TYPE_PARTICLE:
+				d_particle_emitter_move(s->particle_effect[pack.particle.effect_type], pack.particle.x, pack.particle.y);
+				d_particle_pulse(s->particle_effect[pack.particle.effect_type]);
+				//sfx_play()
 				break;
 		}
 	}

@@ -15,7 +15,7 @@
 
 #define DEATH_VELOCITY 400
 #define	EFFECT_RANGE 200
-#define	PLAYER_GRAB_RANGE 32
+#define	PLAYER_GRAB_RANGE 50
 
 enum AI_APPLE_STATE {
 	AI_APPLE_STATE_HIDING,
@@ -84,6 +84,7 @@ static void _player_grab_apple(MOVABLE_ENTRY *entry) {
 		dy = cy - ay;
 		if (dx * dx + dy * dy > PLAYER_GRAB_RANGE * PLAYER_GRAB_RANGE)
 			continue;
+		printf("found apple\n");
 		s->movable.movable[i].ai((void *) _get_player_id(entry), &s->movable.movable[i], MOVABLE_MSG_APPLE_GRAB);
 		if (state->state == AI_PLAYER_PICKING_APPLE)
 			break;
@@ -91,9 +92,20 @@ static void _player_grab_apple(MOVABLE_ENTRY *entry) {
 	}
 }
 
-
 static void _trigger_effect(int x, int y, int player, int effect) {
 	int i, dx, dy;
+
+	Packet pack;
+
+	pack.type = PACKET_TYPE_PARTICLE;
+	pack.size = sizeof(PacketParticle);
+
+	pack.particle.x = x;
+	pack.particle.y = y;
+	pack.particle.type = effect;
+
+
+	protocol_send_packet(server_sock, &pack);
 
 	for (i = 0; i < PLAYER_CAP; i++) {
 		if (i == player)
@@ -110,6 +122,28 @@ static void _trigger_effect(int x, int y, int player, int effect) {
 			continue;
 
 		printf("Hit player %i\n", i);
+
+		switch(effect) {
+			case EFFECT_STUN:
+				s->player[i].stunned = true;
+				break;
+			case EFFECT_DROP:
+				for(int j = 0; j < 4; j++) {
+					s->player[i].apple[j] -= rand() % 2;
+					if(s->player[i].apple[j] < 0)
+						s->player[i].apple[j] = 0;
+				}
+				break;
+			case EFFECT_SLAPPED_AROUND:
+				s->movable.movable[s->player[i].movable].x_velocity = (signed) ((rand() % 10)) - 5;
+				s->movable.movable[s->player[i].movable].y_velocity = (signed) ((rand() % 10)) - 5;
+				break;
+			case EFFECT_FUCKED_CONTROLS:
+				s->player[i].fucked_controls = true;
+				break;
+			default:
+				printf("Unknown effect %i\n", effect);
+		}
 	}
 }
 
@@ -207,14 +241,7 @@ static int _player_fix_hitbox(MOVABLE_ENTRY *self) {
 static void _die(MOVABLE_ENTRY *self, int player_id) {
 	Packet pack;
 	
-	pack.type = PACKET_TYPE_BLOOD;
-	pack.size = sizeof(PacketBlood);
-	
-	pack.blood.player = player_id;
-	pack.blood.x = self->x/1000;
-	pack.blood.y = self->y/1000;
-	
-	protocol_send_packet(server_sock, &pack);
+
 	
 	self->x_velocity = self->y_velocity = 0;
 	
@@ -319,7 +346,7 @@ void ai_apple(void *dummy, void *entry, MOVABLE_MSG msg) {
 			if (state->state == AI_APPLE_STATE_HIDING) {
 				if (d_time_get()/1000 != state->last_second) {
 					state->last_second = d_time_get()/1000;
-					if (!(rand() % 10)) {
+					if (!(rand() % 1)) {
 						state->state = AI_APPLE_STATE_RIPE;;
 						self->direction = state->type + 1;
 						self->gravity_effect = 0;
@@ -352,7 +379,7 @@ void ai_apple(void *dummy, void *entry, MOVABLE_MSG msg) {
 			} else if (state->state == AI_APPLE_STATE_PICKED) {
 				if (d_time_get() > state->last_second + 1500) {
 					state->state = AI_APPLE_STATE_RESPAWN;
-					s->movable.movable[s->player[state->picked_by].movable].ai((void *) self->type, &s->movable.movable[s->player[state->picked_by].movable], MOVABLE_MSG_ADD_APPLE);
+					s->movable.movable[s->player[state->picked_by].movable].ai((void *) state->type, &s->movable.movable[s->player[state->picked_by].movable], MOVABLE_MSG_ADD_APPLE);
 				}
 			}
 
@@ -362,6 +389,7 @@ void ai_apple(void *dummy, void *entry, MOVABLE_MSG msg) {
 			if (state->state != AI_APPLE_STATE_RIPE && state->state != AI_APPLE_STATE_FALLING)
 				break;
 			state->state = AI_APPLE_STATE_PICKED;
+			state->picked_by = (int) dummy;
 			state->last_second = d_time_get();
 			s->movable.movable[s->player[(int) dummy].movable].ai((void *) self->id, &s->movable.movable[s->player[(int) dummy].movable], MOVABLE_MSG_GRABBED_APPLE);
 			
@@ -430,6 +458,22 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			grav_angle = atan2(grav_y, grav_x);
 			self->angle = -grav_angle * 1800 / M_PI + 900;
 
+			bool left = 0, right = 0;
+
+			left = ingame_keystate[player_id].left;
+			right = ingame_keystate[player_id].right;
+
+			if(s->player[player_id].fucked_controls) {
+				bool temp;
+				temp = right;
+				right = left;
+				left = temp;
+			};
+
+			if(s->player[player_id].stunned) {
+				left = false;
+				right = false;
+			}
 
 			//printf("player id %i is movable id %i\n", player_id, self->id);
 			if (state->state == AI_PLAYER_WALKING || state->state == AI_PLAYER_LEAPING) {
@@ -439,8 +483,8 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 						break;
 				}
 
-				if (ingame_keystate[player_id].left) {
-					double angle;
+			if (left) {
+				double angle;
 
 					angle = grav_angle + M_PI_2;
 					
@@ -448,10 +492,10 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 					self->y_velocity = 1000.0*sin(angle) + 40.0*sin(angle+M_PI_2);
 					//printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 
-					//self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
-					s->player[player_id].last_walk_direction = 0;
-				} else if (ingame_keystate[player_id].right) {
-					double angle;
+				//self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
+				s->player[player_id].last_walk_direction = 0;
+			} else if (right) {
+				double angle;
 
 					angle = grav_angle - M_PI_2;
 					
@@ -491,6 +535,7 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			if (state->state == AI_PLAYER_PICKING_APPLE) {
 				self->gravity_effect = 0;
 			}
+
 			//noinput:
 			
 			if (movableTileCollision(self, 2, 0) & COLLISION_KILL ||
@@ -523,6 +568,7 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			break;
 		case MOVABLE_MSG_ADD_APPLE:
 			state->state = AI_PLAYER_WALKING;
+			self->gravity_effect = 1;
 			state->apple[(int) dummy]++;
 			_push_apple_count(state->apple, _get_player_id(self), state->selected_apple);
 			break;

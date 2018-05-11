@@ -15,6 +15,9 @@ struct PlayerState {
 
 	int apple[4];
 	int selected;
+
+	bool fucked_controls;
+	bool stunned;
 	//MOVABLE_ENTRY *holding;
 	//DARNIT_PARTICLE *blood;
 };
