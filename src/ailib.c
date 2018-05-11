@@ -132,25 +132,30 @@ static void _trigger_effect(int x, int y, int player, int effect) {
 
 		switch(effect) {
 			case EFFECT_STUN:
-				new_state = AI_PLAYER_STUNNED;
+				//new_state = AI_PLAYER_STUNNED;
 
-				s->movable.movable[i].ai(NULL, &s->movable.movable[i], MOVABLE_MSG_APPLE_GRAB);
-				state_struct->stunned_time = time(NULL);
+				s->movable.movable[s->player[i].movable].ai(NULL, &s->movable.movable[s->player[i].movable], MOVABLE_MSG_STUN);
+				//state_struct->stunned_time = time(NULL);
 				break;
 			case EFFECT_DROP:
+				s->movable.movable[s->player[i].movable].ai(NULL, &s->movable.movable[s->player[i].movable], MOVABLE_MSG_DROP);
+				#if 0
 				for(int j = 0; j < 4; j++) {
 					s->player[i].apple[j] -= rand() % 2;
 					if(s->player[i].apple[j] < 0)
 						s->player[i].apple[j] = 0;
 				}
+				#endif
 				break;
 			case EFFECT_SLAPPED_AROUND:
-				s->movable.movable[s->player[i].movable].x_velocity = (signed) ((rand() % 10000)) - 5000;
-				s->movable.movable[s->player[i].movable].y_velocity = (signed) ((rand() % 10000)) - 5000;
+				s->movable.movable[s->player[i].movable].ai(NULL, &s->movable.movable[s->player[i].movable], MOVABLE_MSG_SLAPPED_AROUND);
+				//s->movable.movable[s->player[i].movable].x_velocity = (signed) ((rand() % 10000)) - 5000;
+				//s->movable.movable[s->player[i].movable].y_velocity = (signed) ((rand() % 10000)) - 5000;
 				break;
 			case EFFECT_FUCKED_CONTROLS:
-				state_struct->fucked_controls_time = time(NULL);
-				new_state = AI_PLAYER_FUCKED_CONTROLS;
+				s->movable.movable[s->player[i].movable].ai(NULL, &s->movable.movable[s->player[i].movable], MOVABLE_MSG_FUCKED_CONTROLS);
+				//state_struct->fucked_controls_time = time(NULL);
+				//new_state = AI_PLAYER_FUCKED_CONTROLS;
 				break;
 			default:
 				printf("Unknown effect %i\n", effect);
@@ -316,8 +321,13 @@ void ai_apple_bullet(void *dummy, void *entry, MOVABLE_MSG msg) {
 			self->x_velocity = fm->xvec;
 			self->y_velocity = fm->yvec;
 			
-			self->x = s->movable.movable[s->player[state->owner].movable].x + (util_sprite_xoff(s->movable.movable[state->owner].sprite) + util_sprite_width(s->movable.movable[state->owner].sprite)/2 + d_sprite_width(self->sprite)/2)*1000;
-			self->y = s->movable.movable[s->player[state->owner].movable].y + (util_sprite_yoff(s->movable.movable[state->owner].sprite) + util_sprite_height(s->movable.movable[state->owner].sprite)/2 + d_sprite_height(self->sprite)/2)*1000;
+			self->x = s->movable.movable[s->player[state->owner].movable].x;
+			self->y = s->movable.movable[s->player[state->owner].movable].y;
+			if (self->x < 0)
+				self->x += (util_sprite_xoff(s->movable.movable[state->owner].sprite) + util_sprite_width(s->movable.movable[state->owner].sprite)/2 + d_sprite_width(self->sprite)/2)*1000;
+				
+			if (self->y < 0)
+				self->y += (util_sprite_yoff(s->movable.movable[state->owner].sprite) + util_sprite_height(s->movable.movable[state->owner].sprite)/2 + d_sprite_height(self->sprite)/2)*1000;
 			//printf("Fired at %i %i\n", self->x / 1000, self->y / 1000);
 			self->gravity_effect = 0;
 			state->state = AI_APPLE_BULLET_STATE_FLYING;
@@ -406,6 +416,9 @@ void ai_apple(void *dummy, void *entry, MOVABLE_MSG msg) {
 			s->movable.movable[s->player[(int) dummy].movable].ai((void *) self->id, &s->movable.movable[s->player[(int) dummy].movable], MOVABLE_MSG_GRABBED_APPLE);
 			
 			break;
+		case MOVABLE_MSG_APPLE_ABORT:
+			state->state = AI_APPLE_STATE_RESPAWN;
+			break;
 		case MOVABLE_MSG_DESTROY:
 			free(self->mystery_pointer);
 			break;
@@ -485,7 +498,7 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			};
 			
 			if(state->state == AI_PLAYER_STUNNED) {
-				if(state->stunned_time > time(NULL))
+				if(state->stunned_time < d_time_get())
 					state->state = AI_PLAYER_WALKING;
 			}
 
@@ -586,6 +599,28 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			self->gravity_effect = 1;
 			state->apple[(int) dummy]++;
 			_push_apple_count(state->apple, _get_player_id(self), state->selected_apple);
+			break;
+		case MOVABLE_MSG_STUN:
+			if (state->state == AI_PLAYER_PICKING_APPLE)
+				s->movable.movable[state->apple_grabbed].ai(NULL, &s->movable.movable[state->apple_grabbed], MOVABLE_MSG_APPLE_ABORT);
+			state->stunned_time = d_time_get() + 2000;
+			state->state = AI_PLAYER_STUNNED;
+			break;
+		case MOVABLE_MSG_DROP:
+			for(int j = 0; j < 4; j++) {
+				state->apple[j] -= rand() % 2;
+				if(state->apple[j] < 0)
+					state->apple[j] = 0;
+			}
+			_push_apple_count(state->apple, _get_player_id(self), state->selected_apple);
+			break;
+		case MOVABLE_MSG_SLAPPED_AROUND:
+			self->x_velocity = (signed) ((rand() % 10000)) - 5000;
+			self->y_velocity = (signed) ((rand() % 10000)) - 5000;
+			state->stunned_time = d_time_get() + 1000;
+			state->state = AI_PLAYER_STUNNED;
+			break;
+		case MOVABLE_MSG_FUCKED_CONTROLS:
 			break;
 		case MOVABLE_MSG_DESTROY:
 			/* TODO: Handle destroy, announce the dead. Etc. */
