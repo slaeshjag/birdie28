@@ -16,8 +16,30 @@
 static DARNIT_CIRCLE *_circle;
 
 InGameKeyStateEntry ingame_keystate[PLAYER_CAP];
-int ingame_timer_package_send(uint8_t advantage, uint32_t team1, uint32_t team2);
 void ingame_timer_blit(int time_left, int mode, int pos);
+
+
+void ingame_timer_package_send(int time_left) {
+	Packet pack;
+	pack.type = PACKET_TYPE_TIMER;
+	pack.size = sizeof(PacketTimer);
+
+	pack.timer.time_left = time_left;
+	protocol_send_packet(server_sock, (void *) &pack);
+}
+
+
+void ingame_timer_blit(int time_left, int mode, int pos) {
+	int minute, deka, second;
+
+	minute = time_left / 60;
+	deka = (time_left % 60) / 10;
+	second = time_left % 10;
+	d_render_tile_blit(s->_7seg, minute + 11*mode, pos, 0);
+	d_render_tile_blit(s->_7seg, 10 + 11*mode, pos+24, 0);
+	d_render_tile_blit(s->_7seg, deka + 11*mode, pos+48, 0);
+	d_render_tile_blit(s->_7seg, second + 11*mode, pos+72, 0);
+}
 
 void ingame_init() {
 	int i;
@@ -33,6 +55,8 @@ void ingame_init() {
 //	healthbar_init();
 //	soundeffects_init();
 //
+	s->_7seg = d_render_tilesheet_load("res/7seg.png", 24, 32, DARNIT_PFORMAT_RGB5A1);
+	s->time_left = 1000 * 60 * 3;
 
 	char *prop;
 	int center_x, center_y, radius;
@@ -71,6 +95,13 @@ void ingame_loop() {
 	
 	if(s->is_host) {
 		server_kick();
+		s->time_left -= d_last_frame_time();
+		printf("timer=%i, %i\n", s->time_left2, d_last_frame_time());
+		ingame_timer_package_send(s->time_left / 1000);
+		
+		if (s->time_left <= 0) {
+			/* TODO: sätt gamestate till over */
+		}
 		//bullet_loop();
 	//	turret_loop();
 		
@@ -92,8 +123,9 @@ void ingame_loop() {
 		
 	}
 	
-	
-	//d_render_offset(0, 0);
+
+	d_render_offset(0, 0);
+	ingame_timer_blit(s->time_left2 / 1000, 1, 0);
 //	healthbar_draw();
 	ingame_client_keyboard();
 }
@@ -209,6 +241,9 @@ void ingame_network_handler() {
 				break;
 			case PACKET_TYPE_SOUND:
 	//			soundeffects_play(pack.sound.sound);
+				break;
+			case PACKET_TYPE_TIMER:
+				s->time_left2 = pack.timer.time_left * 1000;
 				break;
 			case PACKET_TYPE_EXIT:
 				//game_over_set_team(pack.exit.team);

@@ -53,15 +53,16 @@ extern char player_name[];
 extern int server_sock;
 
 
-
 struct GameStateStruct {
 	int	player_id;
 	bool is_host;
 	MOVABLE			movable;
 	DARNIT_MAP		*active_level;
-//	DARNIT_TILESHEET	*_7seg;
+	DARNIT_TILESHEET	*_7seg;
 //	BULLET			bullet;
 //	struct HealthbarStruct	healthbar;
+	int			time_left;
+	int			time_left2;
 	struct PlayerState	player[PLAYER_CAP];
 //	struct PlayerTimer	timer;
 //	struct BlockLogicBlock	block[2]; // One per team for now

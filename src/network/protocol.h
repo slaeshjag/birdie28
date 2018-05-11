@@ -137,9 +137,7 @@ struct PacketTimer {
 	uint16_t type;
 	uint16_t size;
 
-	uint8_t advantage;
-	uint32_t team1;
-	uint32_t team2;
+	uint32_t time_left;
 };
 
 
