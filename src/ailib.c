@@ -204,7 +204,7 @@ int _get_player_id(MOVABLE_ENTRY *self) {
 	}
 
 	//fprintf(stderr, "%s, %i\n", playerid_str, self->id);
-	movable_id = atoi(playerid_str);
+	return atoi(playerid_str);
 	//return movable_id;
 	for (i = 0; i < PLAYER_CAP; i++) {
 		if (!s->player[i].active)
