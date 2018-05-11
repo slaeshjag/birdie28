@@ -4,6 +4,7 @@
 #include "network/protocol.h"
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include "network/network.h"
 #include "network/protocol.h"
 #include "server/server.h"
@@ -68,7 +69,19 @@ void ingame_timer_blit(int time_left, int mode, int pos) {
 }
 
 void ingame_applegague_blit(int player) {
+	int start_x;
+	int start_y;
+	int i, j;
 	d_render_tile_blit(s->_applegague_bg, 0, 1280-260, 0);
+
+	start_x = 1280 - 260 + 2;
+	start_y = 2;
+	d_render_tile_blit(s->_selected_apple, 0, start_x - 1, start_y + s->player[s->player_id].selected * 9);
+
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < s->player[s->player_id].apple[i]; j++)
+			d_render_tile_blit(s->_applegague_fg, 1 + i, start_x + j*9, start_y + i*9);
+	}
 }
 
 
@@ -88,6 +101,8 @@ void ingame_init() {
 //
 	s->_7seg = d_render_tilesheet_load("res/7seg.png", 24, 32, DARNIT_PFORMAT_RGB5A1);
 	s->_applegague_bg = d_render_tilesheet_load("res/applegauge.png", 260, 40, DARNIT_PFORMAT_RGB5A1);
+	s->_applegague_fg = d_render_tilesheet_load("res/applets.png", 8, 8, DARNIT_PFORMAT_RGB5A1);
+	s->_selected_apple = d_render_tilesheet_load("res/selected_apple.png", 258, 8, DARNIT_PFORMAT_RGB5A1);
 	s->time_left = 1000 * 60 * 3;
 
 	char *prop;
@@ -217,7 +232,7 @@ void ingame_client_keyboard() {
 		else
 			releaseevent.suicide = true, pressevent.suicide = false;
 	}
-	
+
 	PacketKeypress kp;
 
 	kp.size = sizeof(kp);
@@ -228,6 +243,19 @@ void ingame_client_keyboard() {
 	protocol_send_packet(server_sock, (void *) &kp);
 
 	oldstate = newstate;
+
+	if (d_keys_get().rmb) {
+		DARNIT_KEYS keys;
+		Packet pack;
+
+		keys = d_keys_zero();
+		keys.rmb = 1;
+		d_keys_set(keys);
+		pack.type = PACKET_TYPE_CHANGE_APPLE;
+		pack.size = sizeof(pack.change_apple);
+		printf("change apple\n");
+		protocol_send_packet(server_sock, (void *) &pack);
+	}
 }
 
 void ingame_network_handler() {
@@ -278,6 +306,13 @@ void ingame_network_handler() {
 				break;
 			case PACKET_TYPE_TIMER:
 				s->time_left2 = pack.timer.time_left * 1000;
+				break;
+			case PACKET_TYPE_APPLE_COUNT:
+				s->player[pack.apple_count.player].apple[0] = pack.apple_count.apple[0];
+				s->player[pack.apple_count.player].apple[1] = pack.apple_count.apple[1];
+				s->player[pack.apple_count.player].apple[2] = pack.apple_count.apple[2];
+				s->player[pack.apple_count.player].apple[3] = pack.apple_count.apple[3];
+				s->player[pack.apple_count.player].selected = pack.apple_count.selected;
 				break;
 			case PACKET_TYPE_EXIT:
 				//game_over_set_team(pack.exit.team);

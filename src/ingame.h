@@ -17,6 +17,7 @@ struct InGameKeyStateEntry {
 	bool			jump;
 	bool			action;
 	bool			suicide;
+	bool			change_apple;
 };
 
 

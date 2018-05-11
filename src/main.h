@@ -60,6 +60,8 @@ struct GameStateStruct {
 	DARNIT_MAP		*active_level;
 	DARNIT_TILESHEET	*_7seg;
 	DARNIT_TILESHEET	*_applegague_bg;
+	DARNIT_TILESHEET	*_applegague_fg;
+	DARNIT_TILESHEET	*_selected_apple;
 //	BULLET			bullet;
 //	struct HealthbarStruct	healthbar;
 	int			time_left;

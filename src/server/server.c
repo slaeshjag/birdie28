@@ -117,8 +117,29 @@ void server_handle_client(ClientList *cli) {
 				fm.xvec = pack.apple_bullet.xdir;
 				fm.yvec = pack.apple_bullet.ydir;
 				fm.direction = 1;
-				s->movable.movable[s->player[cli->id].bullet_movable].ai(&fm, &s->movable.movable[s->player[cli->id].bullet_movable], MOVABLE_MSG_FIRE);
+				s->movable.movable[s->player[cli->id].bullet_movable].ai(&fm, &s->movable.movable[s->player[cli->id].bullet_movable], MOVABLE_MSG_REQUEST_FIRE);
 				}
+				break;
+			case PACKET_TYPE_APPLE_COUNT:
+				//response.type = pack.type;
+				//response.size = response.size;
+				//response.apple_count.apple = pack.apple_count.apple;
+				//response.apple_count.player = pack.apple_count.player;
+				response.apple_count.type = pack.apple_count.type;
+				response.apple_count.size = pack.apple_count.size;
+				response.apple_count.apple[0] = pack.apple_count.apple[0];
+				response.apple_count.apple[1] = pack.apple_count.apple[1];
+				response.apple_count.apple[2] = pack.apple_count.apple[2];
+				response.apple_count.apple[3] = pack.apple_count.apple[3];
+				response.apple_count.selected = pack.apple_count.selected;
+				response.apple_count.player = pack.apple_count.player;
+				
+				for(tmp = client; tmp; tmp = tmp->next) {
+					protocol_send_packet(tmp->sock, &response);
+				}
+				break;
+			case PACKET_TYPE_CHANGE_APPLE:
+				s->movable.movable[s->player[cli->id].movable].ai(NULL, &s->movable.movable[s->player[cli->id].movable], MOVABLE_MSG_CHANGE_APPLE);
 				break;
 			default:
 				fprintf(stderr, "wat %i\n", pack.type);

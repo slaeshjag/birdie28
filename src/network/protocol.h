@@ -23,6 +23,8 @@ enum PacketType {
 	PACKET_TYPE_BULLET_ANNOUNCE,
 	PACKET_TYPE_BULLET_UPDATE,
 	PACKET_TYPE_BULLET_REMOVE,
+	PACKET_TYPE_APPLE_COUNT,
+	PACKET_TYPE_CHANGE_APPLE,
 	PACKET_TYPE_EXIT,
 };
 
@@ -160,6 +162,25 @@ struct PacketExit {
 	uint32_t team;
 };
 
+
+typedef struct PacketAppleCount PacketAppleCount;
+struct PacketAppleCount {
+	uint16_t type;
+	uint16_t size;
+
+	uint8_t player;
+	uint8_t apple[4];
+	uint8_t selected;
+};
+
+
+typedef struct PacketChangeApple PacketChangeApple;
+struct PacketChangeApple {
+	uint16_t type;
+	uint16_t size;
+};
+
+
 typedef union Packet Packet;
 union Packet {
 	struct {
@@ -182,6 +203,8 @@ union Packet {
 	PacketBulletAnnounce bullet_announce;
 	PacketBulletRemove bullet_remove;
 	PacketAppleBullet apple_bullet;
+	PacketAppleCount apple_count;
+	PacketChangeApple change_apple;
 };
 
 int protocol_send_packet(int sock, Packet *pack);

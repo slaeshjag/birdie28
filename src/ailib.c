@@ -7,7 +7,7 @@
 #include "trigonometry.h"
 //#include "blocklogic.h"
 //#include "soundeffects.h"
-//#include "server/server.h"
+#include "server/server.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -47,7 +47,26 @@ struct AppleBulletState {
 
 struct AIPlayerState {
 	enum AI_PLAYER_STATE	state;
+	int			apple[4];
+	int			selected_apple;
 };
+
+
+static int _push_apple_count(int apple[4], int player, int selected) {
+	Packet pack;
+
+	pack.type = PACKET_TYPE_APPLE_COUNT;
+	pack.size = sizeof(pack.apple_count);
+
+	pack.apple_count.apple[0] = apple[0];
+	pack.apple_count.apple[1] = apple[1];
+	pack.apple_count.apple[2] = apple[2];
+	pack.apple_count.apple[3] = apple[3];
+	pack.apple_count.selected = selected;
+	pack.apple_count.player = player;
+
+	return protocol_send_packet(server_sock, &pack);
+}
 
 
 int _get_block_from_entry(MOVABLE_ENTRY *self) {
@@ -185,10 +204,12 @@ void ai_apple_bullet(void *dummy, void *entry, MOVABLE_MSG msg) {
 			}
 			
 			break;
-		case MOVABLE_MSG_FIRE:
+		case MOVABLE_MSG_REQUEST_FIRE:
 			if (state->state == AI_APPLE_BULLET_STATE_FLYING)
 				break;
-
+			s->movable.movable[s->player[state->owner].movable].ai(dummy, &s->movable.movable[s->player[state->owner].movable], MOVABLE_MSG_CHECK_APPLES);
+			break;
+		case MOVABLE_MSG_FIRE:
 			printf("Fire!\n");
 			self->direction = fm->direction;
 			self->x_velocity = fm->xvec;
@@ -255,6 +276,7 @@ void ai_apple(void *dummy, void *entry, MOVABLE_MSG msg) {
 void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 	MOVABLE_ENTRY *self = entry;
 	struct AIPlayerState *state = self->mystery_pointer;
+	struct AILibFireMSG *fm = dummy;
 	int player_id;
 
 	if (!s->is_host) {
@@ -267,6 +289,12 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			self->hp = self->hp_max = 400;
 			self->gravity_effect = 1;
 			self->mystery_pointer = calloc(sizeof(*state), 1);
+			state = self->mystery_pointer;
+			state->apple[0] = 5;
+			state->apple[1] = 1;
+			state->apple[2] = 2;
+			state->apple[3] = 3;
+			_push_apple_count(state->apple, _get_player_id(self), state->selected_apple);
 			//if (player_id >= PLAYER_CAP)	// TODO: replace PLAYER_CAP with actual number of connected players //
 			//	self->hp = 0;
 			//if (!server_player_is_present(player_id))
@@ -393,6 +421,22 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 				_die(self, player_id);
 				
 			self->direction = _player_direction(self);
+			break;
+		case MOVABLE_MSG_CHECK_APPLES:
+			if (state->apple[state->selected_apple] > 0) {
+				state->apple[state->selected_apple]--;
+				fm->direction = state->selected_apple + 1;
+				_push_apple_count(state->apple, _get_player_id(self), state->selected_apple);
+				s->movable.movable[s->player[_get_player_id(self)].bullet_movable].ai(fm, &s->movable.movable[s->player[_get_player_id(self)].bullet_movable], MOVABLE_MSG_FIRE);
+			}
+			break;
+		case MOVABLE_MSG_CHANGE_APPLE:
+			state->selected_apple++;
+			if (state->selected_apple == 4)
+				state->selected_apple = 0;
+			_push_apple_count(state->apple, _get_player_id(self), state->selected_apple);
+			printf("Changed to apple %i\n", state->selected_apple);
+			
 			break;
 		case MOVABLE_MSG_DESTROY:
 			/* TODO: Handle destroy, announce the dead. Etc. */
