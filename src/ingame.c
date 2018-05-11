@@ -119,7 +119,7 @@ void ingame_init() {
 	s->_applegague_bg = d_render_tilesheet_load("res/applegauge.png", 260, 40, DARNIT_PFORMAT_RGB5A1);
 	s->_applegague_fg = d_render_tilesheet_load("res/applets.png", 8, 8, DARNIT_PFORMAT_RGB5A1);
 	s->_selected_apple = d_render_tilesheet_load("res/selected_apple.png", 258, 8, DARNIT_PFORMAT_RGB5A1);
-	s->time_left = 1000 * 60 * 3;
+	s->time_left = 1000 * 10;
 
 	char *prop;
 	int center_x, center_y, radius;
@@ -177,7 +177,11 @@ void ingame_loop() {
 		ingame_timer_package_send(s->time_left / 1000);
 		
 		if (s->time_left <= 0) {
-			/* TODO: sätt gamestate till over */
+			Packet pack;
+
+			pack.type = PACKET_TYPE_EXIT;
+			pack.size = sizeof(pack.exit);
+			protocol_send_packet(server_sock, (void *) &pack);
 		}
 		//bullet_loop();
 	//	turret_loop();

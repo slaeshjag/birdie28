@@ -158,8 +158,6 @@ typedef struct PacketExit PacketExit;
 struct PacketExit {
 	uint16_t type;
 	uint16_t size;
-	
-	uint32_t team;
 };
 
 

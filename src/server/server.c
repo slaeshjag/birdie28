@@ -111,7 +111,6 @@ void server_handle_client(ClientList *cli) {
 			case PACKET_TYPE_EXIT:
 				response.type = PACKET_TYPE_EXIT;
 				response.size = sizeof(PacketExit);
-				response.exit.team = pack.exit.team;
 				
 				for(tmp = client; tmp; tmp = tmp->next) {
 					protocol_send_packet(tmp->sock, &response);
