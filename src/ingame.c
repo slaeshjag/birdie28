@@ -12,6 +12,7 @@
 #include "gameover.h"
 #include "util.h"
 #include "effect.h"
+#include "sfx.h"
 //#include "bullet.h"
 //#include "turret.h"
 
@@ -276,6 +277,9 @@ void ingame_client_keyboard() {
 			releaseevent.suicide = true, pressevent.suicide = false;
 	}
 
+	if(newstate.left || newstate.right)
+		sfx_play(SFX_WALK);
+
 	PacketKeypress kp;
 
 	kp.size = sizeof(kp);
@@ -365,7 +369,7 @@ void ingame_network_handler() {
 			case PACKET_TYPE_PARTICLE:
 				d_particle_emitter_move(s->particle_effect[pack.particle.effect_type], pack.particle.x, pack.particle.y);
 				d_particle_pulse(s->particle_effect[pack.particle.effect_type]);
-				//sfx_play()
+				sfx_play(SFX_APPLE);
 				break;
 		}
 	}
