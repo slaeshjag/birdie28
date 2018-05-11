@@ -15,6 +15,18 @@
 
 #define DEATH_VELOCITY 400
 
+enum AI_APPLE_STATE {
+	AI_APPLE_STATE_HIDING,
+	AI_APPLE_STATE_FALLING,
+};
+
+
+struct AppleState {
+	int			last_second;
+	enum AI_APPLE_STATE 	state;
+};
+
+
 int _get_block_from_entry(MOVABLE_ENTRY *self) {
 	const char *playerid_str = d_map_prop(s->active_level->object[self->id].ref, "player_id");
 	int i;
@@ -107,6 +119,50 @@ static void _die(MOVABLE_ENTRY *self, int player_id) {
 					
 	//s->player[player_id].holding->direction = block_spawn();
 }
+
+
+void ai_apple(void *dummy, void *entry, MOVABLE_MSG msg) {
+	MOVABLE_ENTRY *self = entry;
+	struct AppleState *state = self->mystery_pointer;
+
+	if (!s->is_host)
+		return;
+	switch (msg) {
+		case MOVABLE_MSG_INIT:
+			self->flag = 1;
+			self->hp = 100;
+			self->gravity_effect = 0;
+			self->direction = 0;
+			self->y_velocity = 0;
+			self->mystery_pointer = calloc(sizeof(*state), 1);
+			break;
+		case MOVABLE_MSG_LOOP:
+			if (self->flag) {
+				self->flag = 0;
+				return;
+			}
+		
+			if (state->state == AI_APPLE_STATE_HIDING) {
+				if (d_time_get()/1000 != state->last_second) {
+					state->last_second = d_time_get()/1000;
+					if (!(rand() % 10)) {
+						state->state = AI_APPLE_STATE_FALLING;
+						self->direction = 1;
+						self->gravity_effect = 1;
+					}
+				}
+			}
+
+			self->direction = ((d_time_get() / 2000) & 1);
+			break;
+		case MOVABLE_MSG_DESTROY:
+			free(self->mystery_pointer);
+			break;
+		default:
+			break;
+	}
+}
+
 
 void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 	MOVABLE_ENTRY *self = entry;
@@ -253,6 +309,7 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 
 static struct AILibEntry ailib[] = {
 	{ "player", ai_player },
+	{ "apple", ai_apple },
 	{ NULL, NULL }
 };
 
