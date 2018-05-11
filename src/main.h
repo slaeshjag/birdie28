@@ -59,6 +59,7 @@ struct GameStateStruct {
 	MOVABLE			movable;
 	DARNIT_MAP		*active_level;
 	DARNIT_TILESHEET	*_7seg;
+	DARNIT_TILESHEET	*_applegague_bg;
 //	BULLET			bullet;
 //	struct HealthbarStruct	healthbar;
 	int			time_left;

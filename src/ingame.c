@@ -41,6 +41,11 @@ void ingame_timer_blit(int time_left, int mode, int pos) {
 	d_render_tile_blit(s->_7seg, second + 11*mode, pos+72, 0);
 }
 
+void ingame_applegague_blit(int player) {
+	d_render_tile_blit(s->_applegague_bg, 0, 1280-260, 0);
+}
+
+
 void ingame_init() {
 	int i;
 	const char *playerid_str;
@@ -56,6 +61,7 @@ void ingame_init() {
 //	soundeffects_init();
 //
 	s->_7seg = d_render_tilesheet_load("res/7seg.png", 24, 32, DARNIT_PFORMAT_RGB5A1);
+	s->_applegague_bg = d_render_tilesheet_load("res/applegauge.png", 260, 40, DARNIT_PFORMAT_RGB5A1);
 	s->time_left = 1000 * 60 * 3;
 
 	char *prop;
@@ -96,7 +102,6 @@ void ingame_loop() {
 	if(s->is_host) {
 		server_kick();
 		s->time_left -= d_last_frame_time();
-		printf("timer=%i, %i\n", s->time_left2, d_last_frame_time());
 		ingame_timer_package_send(s->time_left / 1000);
 		
 		if (s->time_left <= 0) {
@@ -126,6 +131,7 @@ void ingame_loop() {
 
 	d_render_offset(0, 0);
 	ingame_timer_blit(s->time_left2 / 1000, 1, 0);
+	ingame_applegague_blit(s->player_id);
 //	healthbar_draw();
 	ingame_client_keyboard();
 }
