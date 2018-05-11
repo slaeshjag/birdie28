@@ -97,8 +97,8 @@ static void _trigger_effect(int x, int y, int player, int effect) {
 				}
 				break;
 			case EFFECT_SLAPPED_AROUND:
-				s->movable.movable[s->player[i].movable].x_velocity = (signed) ((rand() % 10)) - 5;
-				s->movable.movable[s->player[i].movable].y_velocity = (signed) ((rand() % 10)) - 5;
+				s->movable.movable[s->player[i].movable].x_velocity = (signed) ((rand() % 10000)) - 5000;
+				s->movable.movable[s->player[i].movable].y_velocity = (signed) ((rand() % 10000)) - 5000;
 				break;
 			case EFFECT_FUCKED_CONTROLS:
 				s->player[i].fucked_controls = true;
