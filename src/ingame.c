@@ -144,19 +144,19 @@ void ingame_init() {
 	}
 	{
 		Color start = {255, 0, 0, 255}; Color target = {128, 0, 0, 0};
-		s->particle_effect[EFFECT_STUN] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_SHOWER, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 1, 1);
+		s->particle_effect[EFFECT_STUN] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_PULSAR, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 100, 1000);
 	}
 	{
 		Color start = {0, 255, 0, 255}; Color target = {0, 128, 0, 0};
-		s->particle_effect[EFFECT_DROP] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_SHOWER, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 1, 1);
+		s->particle_effect[EFFECT_DROP] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_PULSAR, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 100, 1000);
 	}
 	{
 		Color start = {0, 0, 255, 255}; Color target = {0, 0, 128, 0};
-		s->particle_effect[EFFECT_SLAPPED_AROUND] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_SHOWER, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 1, 1);
+		s->particle_effect[EFFECT_SLAPPED_AROUND] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_PULSAR, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 100, 1000);
 	}
 	{
 		Color start = {255, 255, 0, 255}; Color target = {128, 128, 0, 0};
-		s->particle_effect[EFFECT_FUCKED_CONTROLS] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_SHOWER, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 1, 1);
+		s->particle_effect[EFFECT_FUCKED_CONTROLS] = _particle(DARNIT_PARTICLE_TYPE_POINT, DARNIT_PARTICLE_MODE_PULSAR, 1000, start, target , 1000, 0, 3600, 2, 0, 0, 100, 1000);
 	}
 }
 

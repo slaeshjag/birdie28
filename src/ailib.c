@@ -51,6 +51,8 @@ struct AIPlayerState {
 	enum AI_PLAYER_STATE	state;
 	int			apple[4];
 	int			selected_apple;
+	time_t			stunned_time;
+	time_t			fucked_controller_time;
 };
 
 
@@ -64,7 +66,7 @@ static void _trigger_effect(int x, int y, int player, int effect) {
 
 	pack.particle.x = x;
 	pack.particle.y = y;
-	pack.particle.type = effect;
+	pack.particle.effect_type = effect;
 
 
 	protocol_send_packet(server_sock, &pack);
