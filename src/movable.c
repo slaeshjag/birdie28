@@ -25,7 +25,10 @@ int movableInit() {
 int _test_boundaries(int x, int y, int x2, int y2) {
 	int center_x, center_y, radius;
 	const char *xprop, *yprop, *rprop;
-	
+
+	x2 += x;
+	y2 += y;
+
 	if (!strcmp(xprop = d_map_prop(s->active_level->prop, "center_x"), "NO SUCH KEY"))
 		center_x = 100;
 	else
@@ -40,6 +43,8 @@ int _test_boundaries(int x, int y, int x2, int y2) {
 		radius = atoi(rprop);
 	x -= center_x;
 	y -= center_y;
+	x2 -= center_x;
+	y2 -= center_y;
 	if ((x * x + y * y) >= radius*radius)
 		return 0;
 	if ((x2 * x2 + y * y) >= radius*radius)
@@ -121,10 +126,17 @@ void movableSpawn() {
 	for (i = 0; i < PLAYER_CAP; i++) {
 		if (!s->player[i].active)
 			s->player[i].movable = 31;
-		else if (!s->player[i].team) {
-			s->player[i].movable = team1++;
-		} else {
-			s->player[i].movable = team2++;
+		else {
+			int j;
+
+			for (j = 0; j < s->movable.movables; j++) {
+				const char *playerid_str;
+				if (!strcmp(playerid_str = d_map_prop(s->active_level->object[j].ref, "player_id"), "NO SUCH KEY"))
+					continue;
+				if (atoi(playerid_str) == i)
+					s->player[i].movable = j;
+					
+			}
 		}
 	}
 
@@ -293,7 +305,7 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 			entry->y_gravity = gravity_y;
 		}
 
-		if (!_test_boundaries(entry->x/1000, entry->y/1000, entry->w, entry->h)) {
+		if (!_test_boundaries(entry->x/1000, entry->y/1000, d_sprite_width(entry->sprite), d_sprite_height(entry->sprite))) {
 			entry->gravity_blocked = 1;
 			return 1;
 		}
@@ -423,8 +435,8 @@ void movableLoop() {
 
 	for (j = 0; j < s->movable.movables; j++) {
 		i = j;
-		//if (!s->movable.movable[i].hp)
-		//	continue;
+		if (!s->movable.movable[i].hp)
+			continue;
 		if (master) {
 			if (_get_player_id(&s->movable.movable[i]) >= 0)
 				players_active++, winning_player = _get_player_id(&s->movable.movable[i]);
@@ -444,14 +456,12 @@ void movableLoop() {
 		d_bbox_move(s->movable.bbox, i, s->movable.movable[i].x / 1000 + h_x, s->movable.movable[i].y / 1000 + h_y);
 		d_bbox_resize(s->movable.bbox, i, h_w, h_h);
 		
-		#if 0
 		if (s->movable.movable[i].hp <= 0) {
 			d_bbox_delete(s->movable.bbox, i);
 			if (s->movable.movable[i].ai)
 				s->movable.movable[i].ai(s, &s->movable.movable[i], MOVABLE_MSG_DESTROY);
 			/* TODO: Make it play some sound effect here */
 		}
-		#endif
 	}
 
 	if (players_active <= 1 && master) {
