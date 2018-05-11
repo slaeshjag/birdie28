@@ -16,7 +16,7 @@
 
 #define DEATH_VELOCITY 400
 #define	EFFECT_RANGE 200
-#define	PLAYER_GRAB_RANGE 70
+#define	PLAYER_GRAB_RANGE 300
 
 enum AI_APPLE_STATE {
 	AI_APPLE_STATE_HIDING,
@@ -383,7 +383,7 @@ void ai_apple(void *dummy, void *entry, MOVABLE_MSG msg) {
 			if (state->state == AI_APPLE_STATE_HIDING) {
 				if (d_time_get()/1000 != state->last_second) {
 					state->last_second = d_time_get()/1000;
-					if (!(rand() % 1)) {
+					if (!(rand() % 10)) {
 						state->state = AI_APPLE_STATE_RIPE;;
 						self->direction = state->type + 1;
 						self->gravity_effect = 0;
@@ -394,7 +394,6 @@ void ai_apple(void *dummy, void *entry, MOVABLE_MSG msg) {
 					state->last_second = d_time_get()/1000;
 					if (!(rand() % 10)) {
 						state->state = AI_APPLE_STATE_FALLING;
-						printf("falling\n");
 						state->last_second = d_time_get();
 						self->gravity_effect = 1;
 						self->tile_collision = 0;
@@ -459,10 +458,10 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			self->gravity_effect = 1;
 			self->mystery_pointer = calloc(sizeof(*state), 1);
 			state = self->mystery_pointer;
-			state->apple[0] = 5;
-			state->apple[1] = 1;
-			state->apple[2] = 2;
-			state->apple[3] = 3;
+			state->apple[0] = 0;
+			state->apple[1] = 0;
+			state->apple[2] = 0;
+			state->apple[3] = 0;
 			_push_apple_count(state->apple, _get_player_id(self), state->selected_apple);
 			//if (player_id >= PLAYER_CAP)	// TODO: replace PLAYER_CAP with actual number of connected players //
 			//	self->hp = 0;
@@ -577,6 +576,7 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 		
 			if (state->state == AI_PLAYER_PICKING_APPLE) {
 				self->gravity_effect = 0;
+				self->direction |= 6;
 			}
 
 			//noinput:
