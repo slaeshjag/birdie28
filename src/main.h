@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <darnit/darnit.h>
 //#include "sfx.h"
+#include "effect.h"
 
 #include "movable.h"
 #include "player.h"
@@ -25,6 +26,14 @@
 #define PANE_B 0xCD
 
 
+typedef struct Color Color;
+struct Color {
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
+	uint8_t a;
+};
+
 typedef enum GameState GameState;
 enum GameState {
 	GAME_STATE_MENU,
@@ -38,6 +47,12 @@ enum GameState {
 	GAME_STATE_GAME_OVER,
 	GAME_STATE_QUIT,
 	GAME_STATES,
+};
+
+typedef enum ParticleEffects ParticleEffects;
+enum ParticleEffects {
+	PARTICLE_EFFECT_DIE = EFFECTS,
+	PARTICLE_EFFECTS,
 };
 
 typedef struct Gfx Gfx;
@@ -89,6 +104,8 @@ struct GameStateStruct {
 				int y;
 				int follow;
 	} camera;
+
+	DARNIT_PARTICLE *particle_effect[PARTICLE_EFFECTS];
 };
 
 extern struct GameStateStruct *s;

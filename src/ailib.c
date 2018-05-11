@@ -7,6 +7,7 @@
 #include "trigonometry.h"
 //#include "blocklogic.h"
 //#include "soundeffects.h"
+#include "effect.h"
 #include "server/server.h"
 #include <string.h>
 #include <stdlib.h>
@@ -56,6 +57,18 @@ struct AIPlayerState {
 static void _trigger_effect(int x, int y, int player, int effect) {
 	int i, dx, dy;
 
+	Packet pack;
+
+	pack.type = PACKET_TYPE_PARTICLE;
+	pack.size = sizeof(PacketParticle);
+
+	pack.particle.x = x;
+	pack.particle.y = y;
+	pack.particle.type = effect;
+
+
+	protocol_send_packet(server_sock, &pack);
+
 	for (i = 0; i < PLAYER_CAP; i++) {
 		if (i == player)
 			continue;
@@ -71,6 +84,28 @@ static void _trigger_effect(int x, int y, int player, int effect) {
 			continue;
 
 		printf("Hit player %i\n", i);
+
+		switch(effect) {
+			case EFFECT_STUN:
+				s->player[i].stunned = true;
+				break;
+			case EFFECT_DROP:
+				for(int j = 0; j < 4; j++) {
+					s->player[i].apple[j] -= rand() % 2;
+					if(s->player[i].apple[j] < 0)
+						s->player[i].apple[j] = 0;
+				}
+				break;
+			case EFFECT_SLAPPED_AROUND:
+				s->movable.movable[s->player[i].movable].x_velocity = (signed) ((rand() % 10)) - 5;
+				s->movable.movable[s->player[i].movable].y_velocity = (signed) ((rand() % 10)) - 5;
+				break;
+			case EFFECT_FUCKED_CONTROLS:
+				s->player[i].fucked_controls = true;
+				break;
+			default:
+				printf("Unknown effect %i\n", effect);
+		}
 	}
 }
 
@@ -168,14 +203,6 @@ static int _player_fix_hitbox(MOVABLE_ENTRY *self) {
 static void _die(MOVABLE_ENTRY *self, int player_id) {
 	Packet pack;
 	
-	pack.type = PACKET_TYPE_BLOOD;
-	pack.size = sizeof(PacketBlood);
-	
-	pack.blood.player = player_id;
-	pack.blood.x = self->x/1000;
-	pack.blood.y = self->y/1000;
-	
-	protocol_send_packet(server_sock, &pack);
 	
 	self->x_velocity = self->y_velocity = 0;
 	
@@ -351,10 +378,26 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			grav_angle = atan2(grav_y, grav_x);
 			self->angle = -grav_angle * 1800 / M_PI + 900;
 
+			bool left = 0, right = 0;
+
+			left = ingame_keystate[player_id].left;
+			right = ingame_keystate[player_id].right;
+
+			if(s->player[player_id].fucked_controls) {
+				bool temp;
+				temp = right;
+				right = left;
+				left = temp;
+			};
+
+			if(s->player[player_id].stunned) {
+				left = false;
+				right = false;
+			}
 
 			//printf("player id %i is movable id %i\n", player_id, self->id);
 
-			if (ingame_keystate[player_id].left) {
+			if (left) {
 				double angle;
 
 				angle = grav_angle + M_PI_2;
@@ -365,7 +408,7 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 
 				//self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
 				s->player[player_id].last_walk_direction = 0;
-			} else if (ingame_keystate[player_id].right) {
+			} else if (right) {
 				double angle;
 
 				angle = grav_angle - M_PI_2;

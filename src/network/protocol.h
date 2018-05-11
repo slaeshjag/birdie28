@@ -16,7 +16,7 @@ enum PacketType {
 	PACKET_TYPE_SOUND,
 	PACKET_TYPE_KEYPRESS,
 	PACKET_TYPE_BLOCK_PLACE,
-	PACKET_TYPE_BLOOD,
+	PACKET_TYPE_PARTICLE,
 	PACKET_TYPE_EXPLOSION,
 	PACKET_TYPE_TIMER,
 	PACKET_TYPE_APPLE_BULLET_FIRE,
@@ -62,14 +62,14 @@ struct PacketKeypress {
 	InGameKeyStateEntry keypress, keyrelease;
 };
 
-typedef struct PacketBlood PacketBlood;
-struct PacketBlood {
+typedef struct PacketParticle PacketParticle;
+struct PacketParticle {
 	uint16_t type;
 	uint16_t size;
 	
-	uint32_t player;
 	uint32_t x;
 	uint32_t y;
+	uint32_t effect_type;
 };
 
 typedef struct PacketExplosion PacketExplosion;
@@ -197,7 +197,7 @@ union Packet {
 	PacketExit exit;
 	PacketBlockPlace block_place;
 	PacketExplosion explosion;
-	PacketBlood blood;
+	PacketParticle particle;
 	PacketTimer timer;
 	PacketBulletUpdate bullet_update;
 	PacketBulletAnnounce bullet_announce;

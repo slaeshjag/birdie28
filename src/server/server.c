@@ -84,7 +84,15 @@ void server_handle_client(ClientList *cli) {
 			case PACKET_TYPE_BLOCK_PLACE:
 				break;
 			
-			case PACKET_TYPE_BLOOD:
+			case PACKET_TYPE_PARTICLE:
+				response.type = PACKET_TYPE_PARTICLE;
+				response.size = sizeof(PacketParticle);
+				response.particle.x = pack.particle.x;
+				response.particle.y = pack.particle.y;
+
+				for(tmp = client; tmp; tmp = tmp->next) {
+					protocol_send_packet(tmp->sock, &response);
+				}
 				break;
 			case PACKET_TYPE_TIMER:
 				response.type = PACKET_TYPE_TIMER;
