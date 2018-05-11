@@ -529,8 +529,8 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 	
 					angle = grav_angle + M_PI_2;
 					
-					self->x_velocity = 1000.0*cos(angle) + 80.0*cos(angle+M_PI_2);
-					self->y_velocity = 1000.0*sin(angle) + 80.0*sin(angle+M_PI_2);
+					self->x_velocity = 500.0*cos(angle) + 80.0*cos(angle+M_PI_2);
+					self->y_velocity = 500.0*sin(angle) + 80.0*sin(angle+M_PI_2);
 					//printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 	
 					//self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
@@ -540,8 +540,8 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 
 					angle = grav_angle - M_PI_2;
 					
-					self->x_velocity = 1000.0*cos(angle) + 80.0*cos(angle - M_PI_2);
-					self->y_velocity = 1000.0*sin(angle) + 80.0*sin(angle - M_PI_2);
+					self->x_velocity = 500.0*cos(angle) + 80.0*cos(angle - M_PI_2);
+					self->y_velocity = 500.0*sin(angle) + 80.0*sin(angle - M_PI_2);
 					//printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 
 					//self->x_velocity = 300;// - block_property[s->player[player_id].holding->direction].mass/2;
@@ -563,8 +563,8 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 					printf("Jump!\n");
 					ingame_keystate[player_id].jump = 0;
 					
-					self->x_gravity = MOV_TERMINAL_VELOCITY * cos(grav_angle-M_PI);
-					self->y_gravity = MOV_TERMINAL_VELOCITY * sin(grav_angle-M_PI);
+					self->x_gravity = MOV_TERMINAL_VELOCITY*4/5 * cos(grav_angle-M_PI);
+					self->y_gravity = MOV_TERMINAL_VELOCITY*4/5 * sin(grav_angle-M_PI);
 					state->state = AI_PLAYER_LEAPING;
 				}
 			}
