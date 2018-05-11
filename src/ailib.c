@@ -27,6 +27,12 @@ enum AI_APPLE_BULLET_STATE {
 };
 
 
+enum AI_PLAYER_STATE {
+	AI_PLAYER_WALKING,
+	AI_PLAYER_LEAPING,
+};
+
+
 struct AppleState {
 	int			last_second;
 	enum AI_APPLE_STATE 	state;
@@ -36,6 +42,11 @@ struct AppleState {
 struct AppleBulletState {
 	enum AI_APPLE_BULLET_STATE state;
 	int			owner;
+};
+
+
+struct AIPlayerState {
+	enum AI_PLAYER_STATE	state;
 };
 
 
@@ -243,6 +254,7 @@ void ai_apple(void *dummy, void *entry, MOVABLE_MSG msg) {
 
 void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 	MOVABLE_ENTRY *self = entry;
+	struct AIPlayerState *state = self->mystery_pointer;
 	int player_id;
 
 	if (!s->is_host) {
@@ -254,6 +266,7 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			self->flag = 1;
 			self->hp = self->hp_max = 400;
 			self->gravity_effect = 1;
+			self->mystery_pointer = calloc(sizeof(*state), 1);
 			//if (player_id >= PLAYER_CAP)	// TODO: replace PLAYER_CAP with actual number of connected players //
 			//	self->hp = 0;
 			//if (!server_player_is_present(player_id))
@@ -295,8 +308,8 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 
 				angle = grav_angle + M_PI_2;
 				
-				self->x_velocity = 300.0*cos(angle) + 40.0*cos(angle+M_PI_2);
-				self->y_velocity = 300.0*sin(angle) + 40.0*sin(angle+M_PI_2);
+				self->x_velocity = 1000.0*cos(angle) + 40.0*cos(angle+M_PI_2);
+				self->y_velocity = 1000.0*sin(angle) + 40.0*sin(angle+M_PI_2);
 				printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 
 				//self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
@@ -306,8 +319,8 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 
 				angle = grav_angle - M_PI_2;
 				
-				self->x_velocity = 300.0*cos(angle) + 40.0*cos(angle - M_PI_2);
-				self->y_velocity = 300.0*sin(angle) + 40.0*sin(angle - M_PI_2);
+				self->x_velocity = 1000.0*cos(angle) + 40.0*cos(angle - M_PI_2);
+				self->y_velocity = 1000.0*sin(angle) + 40.0*sin(angle - M_PI_2);
 				printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 
 				//self->x_velocity = 300;// - block_property[s->player[player_id].holding->direction].mass/2;
@@ -316,16 +329,23 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 				self->x_velocity = 0;
 				self->y_velocity = 0;
 			}
-			if (ingame_keystate[player_id].jump) {
-				DARNIT_KEYS keys;
-			
-				printf("Jump!\n");
-				ingame_keystate[player_id].jump = 0;
+
+			if (state->state == AI_PLAYER_WALKING) {
+				if (ingame_keystate[player_id].jump) {
+					DARNIT_KEYS keys;
 				
-				if (self->gravity_blocked) {
+					printf("Jump!\n");
+					ingame_keystate[player_id].jump = 0;
+					
 					self->x_gravity = MOV_TERMINAL_VELOCITY * cos(grav_angle-M_PI);
 					self->y_gravity = MOV_TERMINAL_VELOCITY * sin(grav_angle-M_PI);
+					state->state = AI_PLAYER_LEAPING;
 				}
+			}
+
+			if (state->state == AI_PLAYER_LEAPING) {
+				if (self->gravity_blocked)
+					state->state = AI_PLAYER_WALKING;
 			}
 			
 			#if 0
