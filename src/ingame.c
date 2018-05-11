@@ -221,7 +221,7 @@ void ingame_client_keyboard() {
 	newstate.left = d_keys_get().left;
 	newstate.right = d_keys_get().right;
 	newstate.jump = d_keys_get().up;
-	newstate.action = d_keys_get().a;
+	newstate.action = d_keys_get().down;
 	newstate.suicide = d_keys_get().x;
 	if (d_keys_get().lmb) {
 		DARNIT_KEYS keys;

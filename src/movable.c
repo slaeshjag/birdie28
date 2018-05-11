@@ -116,6 +116,7 @@ void movableSpawn() {
 		s->movable.movable[i].gravity_effect = 0;
 		s->movable.movable[i].x_velocity = 0;
 		s->movable.movable[i].y_velocity = 1;
+		s->movable.movable[i].tile_collision = 1;
 		s->movable.movable[i].id = i;
 		d_sprite_hitbox(s->movable.movable[i].sprite, &h_x, &h_y, &h_w, &h_h);
 		d_bbox_add(s->movable.bbox, s->movable.movable[i].x / 1000 + h_x, s->movable.movable[i].x / 1000 + h_x, h_w, h_h);
@@ -336,13 +337,19 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 				
 				if (delta_x > 0) {
 					r = 1000 - r;
-					entry->gravity_blocked |= (movableMoveDo(layer, &entry->x, &delta_x, &entry->x_gravity, r, COLLISION_LEFT, hit_x + hit_w, 0, entry->y / 1000 + hit_y, hit_h));
+					if (!entry->tile_collision)
+						(movableMoveDo(layer, &entry->x, &delta_x, &entry->x_gravity, r, 0, hit_x + hit_w, 0, entry->y / 1000 + hit_y, hit_h));
+					else
+						entry->gravity_blocked |= (movableMoveDo(layer, &entry->x, &delta_x, &entry->x_gravity, r, COLLISION_LEFT, hit_x + hit_w, 0, entry->y / 1000 + hit_y, hit_h));
 						
 				} else { 
 					if (!r)
 						r = 1000;
 					r *= -1;
-					entry->gravity_blocked |= movableMoveDo(layer, &entry->x, &delta_x, &entry->x_gravity, r, COLLISION_RIGHT, hit_x, 0, entry->y / 1000 + hit_y, hit_h);
+					if (!entry->tile_collision)
+						movableMoveDo(layer, &entry->x, &delta_x, &entry->x_gravity, r, 0, hit_x, 0, entry->y / 1000 + hit_y, hit_h);
+					else
+						entry->gravity_blocked |= movableMoveDo(layer, &entry->x, &delta_x, &entry->x_gravity, r, COLLISION_RIGHT, hit_x, 0, entry->y / 1000 + hit_y, hit_h);
 				}
 			} else {
 				r = entry->y % 1000;
@@ -354,12 +361,18 @@ int movableGravity(MOVABLE_ENTRY *entry) {
 			
 				if (delta_y > 0) {
 					r = 1000 - r;
-					entry->gravity_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_gravity, r, COLLISION_TOP, hit_y + hit_h, 0, entry->x / -1000 - hit_x, hit_w);
+					if (!entry->tile_collision)
+						movableMoveDo(layer, &entry->y, &delta_y, &entry->y_gravity, r, 0, hit_y + hit_h, 0, entry->x / -1000 - hit_x, hit_w);
+					else
+						entry->gravity_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_gravity, r, COLLISION_TOP, hit_y + hit_h, 0, entry->x / -1000 - hit_x, hit_w);
 				} else {
 					if (!r)
 						r = 1000;
 					r *= -1;
-					entry->gravity_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_gravity, r, COLLISION_BOTTOM, hit_y, -1, entry->x / -1000 - hit_x, hit_w);
+					if (!entry->tile_collision)
+						movableMoveDo(layer, &entry->y, &delta_y, &entry->y_gravity, r, 0, hit_y, -1, entry->x / -1000 - hit_x, hit_w);
+					else
+						entry->gravity_blocked |= movableMoveDo(layer, &entry->y, &delta_y, &entry->y_gravity, r, COLLISION_BOTTOM, hit_y, -1, entry->x / -1000 - hit_x, hit_w);
 				}
 			} 
 
