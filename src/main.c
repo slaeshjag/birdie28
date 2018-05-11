@@ -14,7 +14,7 @@
 #include "ingame.h"
 #include "lobby.h"
 #include "gameroom.h"
-//#include "gameover.h"
+#include "gameover.h"
 #include "menu.h"
 #include "main.h"
 
@@ -135,11 +135,14 @@ void game_state(GameState state) {
 		case GAME_STATE_GAMEROOM:
 			muil_listbox_clear(gameroom.list);
 		case GAME_STATE_CHARACTERS:
-		case GAME_STATE_GAME_OVER:
 		case GAME_STATE_QUIT:
 			d_input_release();
 		
 		case GAME_STATES:
+			break;
+		case GAME_STATE_GAME_OVER:
+			gameover_calculate_winner();
+			d_input_release();
 			break;
 	}
 	
@@ -168,7 +171,7 @@ int main(int argc, char  **argv) {
 	lobby_init();
 	//sfx_init();
 	//character_room_init();
-	//game_over_init();
+	game_over_init();
 	
 	gamestate_pane[GAME_STATE_MENU] = &menu.pane;
 	gamestate_pane[GAME_STATE_SELECT_NAME] = &select_name.pane;
@@ -176,7 +179,7 @@ int main(int argc, char  **argv) {
 	gamestate_pane[GAME_STATE_LOBBY] = &lobby.pane;
 	gamestate_pane[GAME_STATE_ENTER_IP] = &enter_ip.pane;
 	gamestate_pane[GAME_STATE_GAMEROOM] = &gameroom.pane;
-	//gamestate_pane[GAME_STATE_GAME_OVER] = &game_over.pane;
+	gamestate_pane[GAME_STATE_GAME_OVER] = &game_over.pane;
 	
 	
 	signal(SIGINT, d_quit); //lol

@@ -16,5 +16,6 @@ struct GameOver {
 extern GameOver game_over;
 void game_over_init();
 void game_over_set_team(int team);
+void gameover_calculate_winner();
 
 #endif

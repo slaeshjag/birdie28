@@ -76,6 +76,7 @@ void gameroom_network_handler() {
 				free(tmp);
 				
 				s->player[pack.join.id].active = true;
+				strcpy(s->player[pack.join.id].name, pack.join.name);
 			}
 			break;
 		

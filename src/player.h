@@ -20,6 +20,7 @@ struct PlayerState {
 	bool stunned;
 	//MOVABLE_ENTRY *holding;
 	//DARNIT_PARTICLE *blood;
+	char name[65];
 };
 
 

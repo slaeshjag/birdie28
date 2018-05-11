@@ -45,3 +45,25 @@ void game_over_init() {
 	game_over.button.menu->event_handler->add(game_over.button.menu, button_callback, MUIL_EVENT_TYPE_UI_WIDGET_ACTIVATE);
 }
 
+void gameover_calculate_winner() {
+	int i;
+	int highscore = -1;
+	int winner;
+	for(i = 0; i < 4; i++) {
+		int score;
+		if(!s->player[i].active)
+			continue;
+
+		score = gameover_calculate_score(i);
+		if(score > highscore) {
+			score = highscore;
+			winner = i;
+		}
+	}
+
+	MuilPropertyValue v;
+
+	v.p = malloc(1024);
+	sprintf(v.p, "%s has won!", s->player[winner].name);
+	game_over.whowon->set_prop(game_over.whowon, MUIL_LABEL_PROP_TEXT, v);
+}
