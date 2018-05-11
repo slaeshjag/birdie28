@@ -108,6 +108,7 @@ void movableSpawn() {
 		s->movable.movable[i].ai = ailib_get(d_map_prop(s->active_level->object[i].ref, "ai"));
 		s->movable.movable[i].x = s->active_level->object[i].x * 1000 * s->active_level->layer->tile_w;
 		s->movable.movable[i].y = s->active_level->object[i].y * 1000 * s->active_level->layer->tile_h;
+		printf("spawning movable %i at %i %i\n", i, s->movable.movable[i].x/1000, s->movable.movable[i].y/1000);
 		s->movable.movable[i].l = s->active_level->object[i].l;
 		s->movable.movable[i].direction = 0;
 		//s->movable.movable[i].hp = 1;
@@ -517,9 +518,9 @@ void movableLoopRender(int layer) {
 	for (i = 0; i < s->movable.movables; i++) {
 		if (s->movable.movable[i].l != layer)
 			continue;
-		/*if (!s->movable.movable[i].hp) {
+		if (!s->movable.movable[i].hp) {
 			continue;
-		}*/
+		}
 		d_sprite_draw(s->movable.movable[i].sprite);
 	}
 }
