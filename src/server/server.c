@@ -90,6 +90,7 @@ void server_handle_client(ClientList *cli) {
 				response.size = sizeof(PacketParticle);
 				response.particle.x = pack.particle.x;
 				response.particle.y = pack.particle.y;
+				response.particle.effect_type = pack.particle.effect_type;
 
 				for(tmp = client; tmp; tmp = tmp->next) {
 					protocol_send_packet(tmp->sock, &response);

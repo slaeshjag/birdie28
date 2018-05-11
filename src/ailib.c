@@ -7,6 +7,7 @@
 #include "trigonometry.h"
 //#include "blocklogic.h"
 //#include "soundeffects.h"
+#include "effect.h"
 #include "server/server.h"
 #include <string.h>
 #include <stdlib.h>
@@ -57,6 +58,8 @@ struct AIPlayerState {
 	enum AI_PLAYER_STATE	state;
 	int			apple[4];
 	int			selected_apple;
+	time_t			stunned_time;
+	time_t			fucked_controller_time;
 	int			apple_grabbed;
 };
 
@@ -102,7 +105,7 @@ static void _trigger_effect(int x, int y, int player, int effect) {
 
 	pack.particle.x = x;
 	pack.particle.y = y;
-	pack.particle.type = effect;
+	pack.particle.effect_type = effect;
 
 
 	protocol_send_packet(server_sock, &pack);
@@ -241,7 +244,6 @@ static int _player_fix_hitbox(MOVABLE_ENTRY *self) {
 static void _die(MOVABLE_ENTRY *self, int player_id) {
 	Packet pack;
 	
-
 	
 	self->x_velocity = self->y_velocity = 0;
 	
