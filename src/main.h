@@ -16,7 +16,7 @@
 #define DISPLAY_HEIGHT 720
 #define PORT 1340
 
-#define GAME_TITLE "birdie28"
+#define GAME_TITLE "AeppelpallaRn^_1337"
 
 #define NAME_LEN_MAX 64
 #define	PLAYER_CAP 32
