@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <darnit/darnit.h>
-//#include "sfx.h"
+#include "sfx.h"
 #include "effect.h"
 
 #include "movable.h"
@@ -98,7 +98,7 @@ struct GameStateStruct {
 //		int y;
 //	} center_of_gravity[16];
 	
-//	SfxStruct sfx;
+	SfxStruct sfx;
 	struct {
 				int x;
 				int y;
