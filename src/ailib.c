@@ -15,7 +15,7 @@
 
 #define DEATH_VELOCITY 400
 #define	EFFECT_RANGE 200
-#define	PLAYER_GRAB_RANGE 50
+#define	PLAYER_GRAB_RANGE 70
 
 enum AI_APPLE_STATE {
 	AI_APPLE_STATE_HIDING,
@@ -483,24 +483,25 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 						break;
 				}
 
-			if (left) {
-				double angle;
-
+				self->direction = _player_direction(self) | 2;
+				if (left) {
+					double angle;
+	
 					angle = grav_angle + M_PI_2;
 					
-					self->x_velocity = 1000.0*cos(angle) + 40.0*cos(angle+M_PI_2);
-					self->y_velocity = 1000.0*sin(angle) + 40.0*sin(angle+M_PI_2);
+					self->x_velocity = 1000.0*cos(angle) + 80.0*cos(angle+M_PI_2);
+					self->y_velocity = 1000.0*sin(angle) + 80.0*sin(angle+M_PI_2);
 					//printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
-
-				//self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
-				s->player[player_id].last_walk_direction = 0;
-			} else if (right) {
-				double angle;
+	
+					//self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
+					s->player[player_id].last_walk_direction = 0;
+				} else if (right) {
+					double angle;
 
 					angle = grav_angle - M_PI_2;
 					
-					self->x_velocity = 1000.0*cos(angle) + 40.0*cos(angle - M_PI_2);
-					self->y_velocity = 1000.0*sin(angle) + 40.0*sin(angle - M_PI_2);
+					self->x_velocity = 1000.0*cos(angle) + 80.0*cos(angle - M_PI_2);
+					self->y_velocity = 1000.0*sin(angle) + 80.0*sin(angle - M_PI_2);
 					//printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 
 					//self->x_velocity = 300;// - block_property[s->player[player_id].holding->direction].mass/2;
@@ -508,6 +509,7 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 				} else {
 					self->x_velocity = 0;
 					self->y_velocity = 0;
+					self->direction = _player_direction(self);
 				}
 			} else /* TODO: special case for "flying all over the place" */{
 				self->x_velocity = 0;
@@ -544,7 +546,6 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			    movableTileCollision(self, 0, 2) & COLLISION_KILL)
 				_die(self, player_id);
 				
-			self->direction = _player_direction(self);
 			break;
 		case MOVABLE_MSG_CHECK_APPLES:
 			if (state->apple[state->selected_apple] > 0) {
