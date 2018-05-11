@@ -29,6 +29,9 @@ typedef enum {
 	MOVABLE_MSG_CHECK_APPLES,
 	MOVABLE_MSG_REQUEST_FIRE,
 	MOVABLE_MSG_CHANGE_APPLE,
+	MOVABLE_MSG_APPLE_GRAB,
+	MOVABLE_MSG_GRABBED_APPLE,
+	MOVABLE_MSG_ADD_APPLE,
 	MOVABLE_MSG_DESTROY
 } MOVABLE_MSG;
 
@@ -58,6 +61,7 @@ typedef struct {
 	int			x_gravity;
 	int			y_gravity;
 	int			gravity_effect;
+	int			tile_collision;
 	int			hp;
 	int			hp_max;
 	int			hit;
