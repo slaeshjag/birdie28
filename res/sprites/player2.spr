@@ -1,54 +1,53 @@
-res/player.png 96 96
+res/player.png 256 256
 
 # Stand Right
 D
-T 200 0
+T 200 32
 E
 
 # Stand Left
 D
-T 200 8
+T 200 40
 E
 
 # Right
 D
-T 200 0
-T 200 1
-T 200 2
-T 200 3
+T 200 32
+T 200 33
+T 200 34
+T 200 35
 E
 
 # Left
 D
-T 200 8
-T 200 9
-T 200 10
-T 200 11
+T 200 40
+T 200 41
+T 200 45
+T 200 46
 E
 
 # Carry stand right
 D
-T 200 4
+T 200 36
 E
 
-# Carry left
+# Carry stand left
 D
-T 200 12
+T 200 44
 E
 
 # Carry right
 D
-T 200 4
-T 200 5
-T 200 6
-T 200 7
+T 200 36
+T 200 37
+T 200 38
+T 200 39
 E
 
 # Carry left
 D
-T 200 12
-T 200 13
-T 200 14
-T 200 15
+T 200 44
+T 200 45
+T 200 46
+T 200 47
 E
-
