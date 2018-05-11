@@ -120,6 +120,30 @@
     <property name="sprite" value="res/sprites/apple.spr"/>
    </properties>
   </object>
+  <object name="cranky" x="2976" y="3360" width="32" height="32">
+   <properties>
+    <property name="ai" value="cranky"/>
+    <property name="sprite" value="res/sprites/cranky.spr"/>
+   </properties>
+  </object>
+  <object name="cranky" x="3360" y="1088" width="32" height="32">
+   <properties>
+    <property name="ai" value="cranky"/>
+    <property name="sprite" value="res/sprites/cranky.spr"/>
+   </properties>
+  </object>
+  <object name="cranky" x="1088" y="704" width="32" height="32">
+   <properties>
+    <property name="ai" value="cranky"/>
+    <property name="sprite" value="res/sprites/cranky.spr"/>
+   </properties>
+  </object>
+  <object name="cranky" x="704" y="2976" width="32" height="32">
+   <properties>
+    <property name="ai" value="cranky"/>
+    <property name="sprite" value="res/sprites/cranky.spr"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup name="Object Layer 2" width="0" height="0">
   <object name="apple_spawner1" x="2272" y="3424" width="32" height="32">

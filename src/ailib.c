@@ -42,6 +42,13 @@ enum AI_PLAYER_STATE {
 };
 
 
+enum AI_CRANKY_STATE {
+	AI_CRANKY_HIDING,
+	AI_CRANKY_WARNING,
+	AI_CRANKY_EFFECT,
+};
+
+
 struct AppleState {
 	int			last_second;
 	int			type;
@@ -53,6 +60,14 @@ struct AppleState {
 struct AppleBulletState {
 	enum AI_APPLE_BULLET_STATE state;
 	int			owner;
+};
+
+
+struct CrankyState {
+	enum AI_CRANKY_STATE	state;
+	int			timer;
+	int			next;
+	int			counter;
 };
 
 
@@ -388,7 +403,6 @@ void ai_apple(void *dummy, void *entry, MOVABLE_MSG msg) {
 			} else if (state->state == AI_APPLE_STATE_FALLING) {
 				if (d_time_get() > state->last_second + 10000) {
 					state->state = AI_APPLE_STATE_RESPAWN;
-					printf("respawn\n");
 				}
 			} else if (state->state == AI_APPLE_STATE_RESPAWN) {
 				s->movable.movable[self->id].x = s->active_level->object[self->id].x * 1000 * s->active_level->layer->tile_w;
@@ -632,10 +646,74 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 }
 
 
+void ai_cranky(void *dummy, void *entry, MOVABLE_MSG msg) {
+	MOVABLE_ENTRY *self = entry;
+	struct CrankyState *state = self->mystery_pointer;
+	int grav_x, grav_y;
+	double grav_angle;
+	
+	switch (msg) {
+		case MOVABLE_MSG_INIT:
+			self->flag = 1;
+			self->hp = 100;
+			self->gravity_effect = 1;
+			self->direction = 0;
+			self->mystery_pointer = calloc(sizeof(*state), 1);
+			state = self->mystery_pointer;
+			state->timer = d_time_get();
+			state->next = 10000 + (rand() % 10000);
+			break;
+		case MOVABLE_MSG_LOOP:
+			
+			//printf("%i %i\n", self->x, self->y);
+			gcenter_calc(self->x/1000, self->y/1000, &grav_x, &grav_y);
+			grav_angle = atan2(grav_y, grav_x);
+			self->angle = -grav_angle * 1800 / M_PI + 900;
+			
+			if (state->state == AI_CRANKY_HIDING) {
+				state->counter = 0;
+				self->direction = 0;
+				if (d_time_get() >= state->next + state->timer) {
+					state->state = AI_CRANKY_WARNING;
+					state->timer = d_time_get();
+					state->next = 2000;
+					printf("Now warning\n");
+				}
+			} else if (state->state == AI_CRANKY_WARNING) {
+				self->direction = 1;
+				if (d_time_get() >= state->next + state->timer) {
+					state->state = AI_CRANKY_EFFECT;
+					state->timer = d_time_get();
+					state->next = 1000;
+					state->counter = 4 + (rand() % 3);
+					printf("Now cranky\n");
+				}
+			} else if (state->state == AI_CRANKY_EFFECT) {
+				self->direction = 2;
+				if (d_time_get() >= state->next + state->timer) {
+					_trigger_effect(self->x + (rand() % 300000), self->y + (rand() % 300000), -1, rand() % 4);
+					state->counter--;
+					if (!state->counter) {
+						state->state = AI_CRANKY_HIDING;
+						state->timer = d_time_get();
+						state->next = 10000 + (rand() % 10000);
+					}
+				}
+			}
+			break;
+		case MOVABLE_MSG_DESTROY:
+			break;
+		default:
+			break;
+	}
+}
+
+
 static struct AILibEntry ailib[] = {
 	{ "player", ai_player },
 	{ "apple", ai_apple },
 	{ "apple_bullet", ai_apple_bullet },
+	{ "cranky", ai_cranky },
 	{ NULL, NULL }
 };
 
