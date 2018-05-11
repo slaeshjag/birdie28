@@ -8,6 +8,14 @@ struct AILibEntry {
 	void			(*func)(void *s, void *entry, MOVABLE_MSG msg);
 };
 
+
+struct AILibFireMSG {
+	int			direction;
+	int			xvec;
+	int			yvec;
+};
+
+
 void ai_player(void *dummy, void *entry, MOVABLE_MSG msg);
 
 void *ailib_get(const char *str);

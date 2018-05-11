@@ -19,6 +19,7 @@ enum PacketType {
 	PACKET_TYPE_BLOOD,
 	PACKET_TYPE_EXPLOSION,
 	PACKET_TYPE_TIMER,
+	PACKET_TYPE_APPLE_BULLET_FIRE,
 	PACKET_TYPE_BULLET_ANNOUNCE,
 	PACKET_TYPE_BULLET_UPDATE,
 	PACKET_TYPE_BULLET_REMOVE,
@@ -141,6 +142,16 @@ struct PacketTimer {
 };
 
 
+typedef struct PacketAppleBullet PacketAppleBullet;
+struct PacketAppleBullet {
+	uint16_t type;
+	uint16_t size;
+
+	int32_t xdir;
+	int32_t ydir;
+};
+
+
 typedef struct PacketExit PacketExit;
 struct PacketExit {
 	uint16_t type;
@@ -170,6 +181,7 @@ union Packet {
 	PacketBulletUpdate bullet_update;
 	PacketBulletAnnounce bullet_announce;
 	PacketBulletRemove bullet_remove;
+	PacketAppleBullet apple_bullet;
 };
 
 int protocol_send_packet(int sock, Packet *pack);

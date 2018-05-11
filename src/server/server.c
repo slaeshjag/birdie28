@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <darnit/darnit.h>
 //#include "../block.h"
+#include "../ailib.h"
 #include "../main.h"
 #include "../network/network.h"
 #include "../network/protocol.h"
@@ -108,6 +109,16 @@ void server_handle_client(ClientList *cli) {
 				}
 				break;
 			case PACKET_TYPE_BULLET_REMOVE:
+				break;
+			case PACKET_TYPE_APPLE_BULLET_FIRE:
+				{
+				struct AILibFireMSG fm;
+				
+				fm.xvec = pack.apple_bullet.xdir;
+				fm.yvec = pack.apple_bullet.ydir;
+				fm.direction = 1;
+				s->movable.movable[s->player[cli->id].bullet_movable].ai(&fm, &s->movable.movable[s->player[cli->id].bullet_movable], MOVABLE_MSG_FIRE);
+				}
 				break;
 			default:
 				fprintf(stderr, "wat %i\n", pack.type);

@@ -11,6 +11,8 @@ struct PlayerState {
 	int pulling;
 	int movable;
 
+	int bullet_movable;
+
 	int apple[4];
 	//MOVABLE_ENTRY *holding;
 	//DARNIT_PARTICLE *blood;

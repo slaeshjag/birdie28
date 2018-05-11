@@ -21,9 +21,21 @@ enum AI_APPLE_STATE {
 };
 
 
+enum AI_APPLE_BULLET_STATE {
+	AI_APPLE_BULLET_STATE_IDLE,
+	AI_APPLE_BULLET_STATE_FLYING,
+};
+
+
 struct AppleState {
 	int			last_second;
 	enum AI_APPLE_STATE 	state;
+};
+
+
+struct AppleBulletState {
+	enum AI_APPLE_BULLET_STATE state;
+	int			owner;
 };
 
 
@@ -118,6 +130,71 @@ static void _die(MOVABLE_ENTRY *self, int player_id) {
 	self->y = s->active_level->object[self->id].y*1000*24;
 					
 	//s->player[player_id].holding->direction = block_spawn();
+}
+
+
+void ai_apple_bullet(void *dummy, void *entry, MOVABLE_MSG msg) {
+	MOVABLE_ENTRY *self = entry;
+	struct AppleBulletState *state = self->mystery_pointer;
+	struct AILibFireMSG *fm = dummy;
+
+	if (!s->is_host)
+		return;
+	switch (msg) {
+		case MOVABLE_MSG_INIT:
+			self->flag = 1;
+			self->hp = 100;
+			self->gravity_effect = 0;
+			self->direction = 0;
+			self->y_velocity = 0;
+			self->mystery_pointer = calloc(sizeof(*state), 1);
+			state = self->mystery_pointer;
+			state->owner = atoi(d_map_prop(s->active_level->object[self->id].ref, "owner"));
+			s->player[state->owner].bullet_movable = self->id;
+			break;
+		case MOVABLE_MSG_LOOP:
+			if (self->flag) {
+				self->flag = 0;
+				return;
+			}
+
+			if (state->state == AI_APPLE_BULLET_STATE_IDLE) {
+				self->gravity_effect = 0;
+				self->direction = 0;
+				self->x_gravity = self->y_gravity = 0;
+				self->x_velocity = self->y_velocity = 0;
+			} else {
+				self->gravity_effect = 1;
+				printf("Bullet at %i %i\n", self->x / 1000, self->y / 1000);
+				if (self->gravity_blocked) {
+					state->state = AI_APPLE_BULLET_STATE_IDLE;
+					printf("splat\n");
+					/* TODO: Cause effects */
+				}
+			}
+			
+			break;
+		case MOVABLE_MSG_FIRE:
+			if (state->state == AI_APPLE_BULLET_STATE_FLYING)
+				break;
+
+			printf("Fire!\n");
+			self->direction = fm->direction;
+			self->x_velocity = fm->xvec;
+			self->y_velocity = fm->yvec;
+			
+			self->x = s->movable.movable[s->player[state->owner].movable].x + (util_sprite_xoff(s->movable.movable[state->owner].sprite) + util_sprite_width(s->movable.movable[state->owner].sprite)/2 + d_sprite_width(self->sprite)/2)*1000;
+			self->y = s->movable.movable[s->player[state->owner].movable].y + (util_sprite_yoff(s->movable.movable[state->owner].sprite) + util_sprite_height(s->movable.movable[state->owner].sprite)/2 + d_sprite_height(self->sprite)/2)*1000;
+			printf("Fired at %i %i\n", self->x / 1000, self->y / 1000);
+			self->gravity_effect = 0;
+			state->state = AI_APPLE_BULLET_STATE_FLYING;
+			break;
+		case MOVABLE_MSG_DESTROY:
+			free(self->mystery_pointer);
+			break;
+		default:
+			return;
+	}
 }
 
 
@@ -310,6 +387,7 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 static struct AILibEntry ailib[] = {
 	{ "player", ai_player },
 	{ "apple", ai_apple },
+	{ "apple_bullet", ai_apple_bullet },
 	{ NULL, NULL }
 };
 

@@ -19,6 +19,32 @@ InGameKeyStateEntry ingame_keystate[PLAYER_CAP];
 void ingame_timer_blit(int time_left, int mode, int pos);
 
 
+void ingame_apple_bullet_fire() {
+	int x, y;
+	float angle;
+	Packet pack;
+
+	x = s->movable.movable[s->player[s->player_id].movable].x / 1000 + d_sprite_width(s->movable.movable[s->player[s->player_id].movable].sprite)/2;
+	y = s->movable.movable[s->player[s->player_id].movable].y / 1000 + d_sprite_height(s->movable.movable[s->player[s->player_id].movable].sprite)/2;
+	x -= s->camera.x;
+	y -= s->camera.y;
+	x -= d_mouse_get().x;
+	y -= d_mouse_get().y;
+
+	angle = atan2(y, x);
+	x = -2000 * cos(angle);
+	y = -2000 * sin(angle);
+
+	pack.type = PACKET_TYPE_APPLE_BULLET_FIRE;
+	pack.size = sizeof(PacketAppleBullet);
+	pack.apple_bullet.xdir = x;
+	pack.apple_bullet.ydir = y;
+	protocol_send_packet(server_sock, (void *) &pack);
+
+	//printf("Vector=%i %i\n", x, y);
+}
+
+
 void ingame_timer_package_send(int time_left) {
 	Packet pack;
 	pack.type = PACKET_TYPE_TIMER;
@@ -149,6 +175,8 @@ void ingame_client_keyboard() {
 	newstate.jump = d_keys_get().up;
 	newstate.action = d_keys_get().a;
 	newstate.suicide = d_keys_get().x;
+	if (d_keys_get().lmb)
+		ingame_apple_bullet_fire();
 	
 	if(d_keys_get().select)
 		restart_to_menu(player_name);
