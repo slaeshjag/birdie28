@@ -89,9 +89,9 @@ void ingame_applegague_blit(int player) {
 static DARNIT_PARTICLE *_particle(DARNIT_PARTICLE_TYPE type, DARNIT_PARTICLE_MODE mode, int particles, Color color_start, Color color_target, int life, int angle_min, int angle_max, int size, int xgrav, int ygrav, int vel_min, int vel_max) {
 	DARNIT_PARTICLE *p;
 
-	p = d_paricle_new(particles, type);
-	d_particle_emitter_color_start(p, color_start.r, color_start.g, color_start.b, color_start.a);
-	d_particle_emitter_color_target(p, color_target.r, color_target.g, color_target.b, color_target.a);
+	p = d_particle_new(particles, type);
+	d_particle_color_start(p, color_start.r, color_start.g, color_start.b, color_start.a);
+	d_particle_color_target(p, color_target.r, color_target.g, color_target.b, color_target.a);
 	d_particle_emitter_angle(p, angle_max, angle_min);
 	d_particle_emitter_velocity(p, vel_min, vel_max);
 	d_particle_emitter_gravity(p, xgrav, ygrav);
@@ -360,7 +360,7 @@ void ingame_network_handler() {
 
 			case PACKET_TYPE_PARTICLE:
 				d_particle_emitter_move(s->particle_effect[pack.particle.effect_type], pack.particle.x, pack.particle.y);
-				d_paricle_pulse(s->particle_effect[pack.particle.effect_type]);
+				d_particle_pulse(s->particle_effect[pack.particle.effect_type]);
 				//sfx_play()
 				break;
 		}
