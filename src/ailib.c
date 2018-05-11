@@ -37,6 +37,8 @@ enum AI_PLAYER_STATE {
 	AI_PLAYER_WALKING,
 	AI_PLAYER_LEAPING,
 	AI_PLAYER_PICKING_APPLE,
+	AI_PLAYER_STUNNED,
+	AI_PLAYER_FUCKED_CONTROLS,
 };
 
 
@@ -59,7 +61,7 @@ struct AIPlayerState {
 	int			apple[4];
 	int			selected_apple;
 	time_t			stunned_time;
-	time_t			fucked_controller_time;
+	time_t			fucked_controls_time;
 	int			apple_grabbed;
 };
 
@@ -96,6 +98,8 @@ static void _player_grab_apple(MOVABLE_ENTRY *entry) {
 }
 
 static void _trigger_effect(int x, int y, int player, int effect) {
+	enum AI_PLAYER_STATE new_state = -1;
+	
 	int i, dx, dy;
 
 	Packet pack;
@@ -128,7 +132,10 @@ static void _trigger_effect(int x, int y, int player, int effect) {
 
 		switch(effect) {
 			case EFFECT_STUN:
-				s->player[i].stunned = true;
+				new_state = AI_PLAYER_STUNNED;
+
+				s->movable.movable[i].ai(NULL, &s->movable.movable[i], MOVABLE_MSG_APPLE_GRAB);
+				state_struct->stunned_time = time(NULL);
 				break;
 			case EFFECT_DROP:
 				for(int j = 0; j < 4; j++) {
@@ -142,12 +149,15 @@ static void _trigger_effect(int x, int y, int player, int effect) {
 				s->movable.movable[s->player[i].movable].y_velocity = (signed) ((rand() % 10000)) - 5000;
 				break;
 			case EFFECT_FUCKED_CONTROLS:
-				s->player[i].fucked_controls = true;
+				state_struct->fucked_controls_time = time(NULL);
+				new_state = AI_PLAYER_FUCKED_CONTROLS;
 				break;
 			default:
 				printf("Unknown effect %i\n", effect);
 		}
 	}
+
+	return new_state;
 }
 
 
@@ -465,20 +475,22 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 			left = ingame_keystate[player_id].left;
 			right = ingame_keystate[player_id].right;
 
-			if(s->player[player_id].fucked_controls) {
+			if(state->state == AI_PLAYER_FUCKED_CONTROLS) {
 				bool temp;
 				temp = right;
 				right = left;
 				left = temp;
+				if(state->fucked_controls_time > time(NULL))
+					state->state = AI_PLAYER_WALKING;
 			};
-
-			if(s->player[player_id].stunned) {
-				left = false;
-				right = false;
+			
+			if(state->state == AI_PLAYER_STUNNED) {
+				if(state->stunned_time > time(NULL))
+					state->state = AI_PLAYER_WALKING;
 			}
 
 			//printf("player id %i is movable id %i\n", player_id, self->id);
-			if (state->state == AI_PLAYER_WALKING || state->state == AI_PLAYER_LEAPING) {
+			if (state->state == AI_PLAYER_WALKING || state->state == AI_PLAYER_LEAPING || state->state == AI_PLAYER_FUCKED_CONTROLS) {
 				if (ingame_keystate[player_id].action) {
 					_player_grab_apple(entry);
 					if (state->state == AI_PLAYER_PICKING_APPLE)
