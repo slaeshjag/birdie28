@@ -120,7 +120,7 @@ void ingame_init() {
 	s->_applegague_bg = d_render_tilesheet_load("res/applegauge.png", 260, 40, DARNIT_PFORMAT_RGB5A1);
 	s->_applegague_fg = d_render_tilesheet_load("res/applets.png", 8, 8, DARNIT_PFORMAT_RGB5A1);
 	s->_selected_apple = d_render_tilesheet_load("res/selected_apple.png", 258, 8, DARNIT_PFORMAT_RGB5A1);
-	s->time_left = 1000 * 30;
+	s->time_left = 1000 * 60 * 3;
 
 	char *prop;
 	int center_x, center_y, radius;
