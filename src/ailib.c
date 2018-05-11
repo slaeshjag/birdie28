@@ -218,7 +218,7 @@ void ai_apple_bullet(void *dummy, void *entry, MOVABLE_MSG msg) {
 				self->x_velocity = self->y_velocity = 0;
 			} else {
 				self->gravity_effect = 1;
-				printf("Bullet at %i %i\n", self->x / 1000, self->y / 1000);
+				//printf("Bullet at %i %i\n", self->x / 1000, self->y / 1000);
 				if (self->gravity_blocked || self->movement_blocked)  {
 					state->state = AI_APPLE_BULLET_STATE_IDLE;
 					printf("splat\n");
@@ -233,14 +233,14 @@ void ai_apple_bullet(void *dummy, void *entry, MOVABLE_MSG msg) {
 			s->movable.movable[s->player[state->owner].movable].ai(dummy, &s->movable.movable[s->player[state->owner].movable], MOVABLE_MSG_CHECK_APPLES);
 			break;
 		case MOVABLE_MSG_FIRE:
-			printf("Fire!\n");
+			//printf("Fire!\n");
 			self->direction = fm->direction;
 			self->x_velocity = fm->xvec;
 			self->y_velocity = fm->yvec;
 			
 			self->x = s->movable.movable[s->player[state->owner].movable].x + (util_sprite_xoff(s->movable.movable[state->owner].sprite) + util_sprite_width(s->movable.movable[state->owner].sprite)/2 + d_sprite_width(self->sprite)/2)*1000;
 			self->y = s->movable.movable[s->player[state->owner].movable].y + (util_sprite_yoff(s->movable.movable[state->owner].sprite) + util_sprite_height(s->movable.movable[state->owner].sprite)/2 + d_sprite_height(self->sprite)/2)*1000;
-			printf("Fired at %i %i\n", self->x / 1000, self->y / 1000);
+			//printf("Fired at %i %i\n", self->x / 1000, self->y / 1000);
 			self->gravity_effect = 0;
 			state->state = AI_APPLE_BULLET_STATE_FLYING;
 			break;
@@ -361,7 +361,7 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 				
 				self->x_velocity = 1000.0*cos(angle) + 40.0*cos(angle+M_PI_2);
 				self->y_velocity = 1000.0*sin(angle) + 40.0*sin(angle+M_PI_2);
-				printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
+				//printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 
 				//self->x_velocity = -300;// + block_property[s->player[player_id].holding->direction].mass/2;
 				s->player[player_id].last_walk_direction = 0;
@@ -372,7 +372,7 @@ void ai_player(void *dummy, void *entry, MOVABLE_MSG msg) {
 				
 				self->x_velocity = 1000.0*cos(angle) + 40.0*cos(angle - M_PI_2);
 				self->y_velocity = 1000.0*sin(angle) + 40.0*sin(angle - M_PI_2);
-				printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
+				//printf("walk %i %i %.4f\n", self->x_velocity, self->y_velocity, angle);
 
 				//self->x_velocity = 300;// - block_property[s->player[player_id].holding->direction].mass/2;
 				s->player[player_id].last_walk_direction = 1;
