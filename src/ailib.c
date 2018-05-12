@@ -691,8 +691,9 @@ void ai_cranky(void *dummy, void *entry, MOVABLE_MSG msg) {
 			} else if (state->state == AI_CRANKY_EFFECT) {
 				self->direction = 2;
 				if (d_time_get() >= state->next + state->timer) {
-					_trigger_effect(self->x + (rand() % 300000), self->y + (rand() % 300000), -1, rand() % 4);
+					_trigger_effect((self->x + (rand() % 300000) - 150000)/1000, (self->y + (rand() % 300000) - 150000)/1000, -1, rand() % 4);
 					state->counter--;
+					state->timer = d_time_get();
 					if (!state->counter) {
 						state->state = AI_CRANKY_HIDING;
 						state->timer = d_time_get();
